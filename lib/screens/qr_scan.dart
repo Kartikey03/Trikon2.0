@@ -582,9 +582,9 @@ class _QrScanState extends State<QrScan> {
       // Parse the JSON data from QR code
       final Map<String, dynamic> qrJson = json.decode(qrData);
 
-      // if (!qrJson.containsKey('id')) {
-      //   throw Exception('Invalid QR code format. Missing ID field.');
-      // }
+      if (!qrJson.containsKey('id')) {
+        throw Exception('Invalid QR code format. Missing ID field.');
+      }
 
       final String participantId = qrJson['id'];
 
