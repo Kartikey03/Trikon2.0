@@ -1,7 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
-class SocietyMembersScreen extends StatelessWidget {
+// Import our service
+import '../services/firebase_service.dart';
+
+class SocietyMembersScreen extends StatefulWidget {
+  const SocietyMembersScreen({super.key});
+
+  @override
+  _SocietyMembersScreenState createState() => _SocietyMembersScreenState();
+}
+
+class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
+  final MembersService _membersService = MembersService();
+
+  // Data holders
+  List<MemberModel> _leadership = [];
+  List<MemberModel> _coordinators = [];
+  List<MemberModel> _coreTeam = [];
+  List<MemberModel> _juniorTeam = [];
+
+  bool _isLoading = true;
+  bool _hasError = false;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+      });
+
+      final leadership = await _membersService.getLeadership();
+      final coordinators = await _membersService.getStudentCoordinators();
+      final coreTeam = await _membersService.getCoreTeam();
+      final juniorTeam = await _membersService.getJuniorTeam();
+
+      setState(() {
+        _leadership = leadership;
+        _coordinators = coordinators;
+        _coreTeam = coreTeam;
+        _juniorTeam = juniorTeam;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+        _errorMessage = e.toString();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,34 +72,71 @@ class SocietyMembersScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).primaryColor.withOpacity(0.1),
-              Colors.white,
-            ],
-          ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (_hasError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Error: $_errorMessage', style: TextStyle(color: Colors.red)),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadData,
+              child: Text('Retry'),
+            ),
+          ],
         ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Theme.of(context).primaryColor.withOpacity(0.1),
+            Colors.white,
+          ],
+        ),
+      ),
+      child: RefreshIndicator(
+        onRefresh: _loadData,
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Leadership Section
               _buildSectionTitle(context, "President & Vice-President"),
               _buildLeadershipRow(context),
               SizedBox(height: 30),
 
+              // Coordinators Section
               _buildSectionTitle(context, "Student Coordinators"),
               _buildCoordinatorsRow(context),
               SizedBox(height: 30),
 
-              _buildSectionTitle(context, "Senior Team"),
-              _buildSeniorTeamGrid(context),
-              SizedBox(height: 40),
+              // Core Team Section
+              _buildSectionTitle(context, "Core Team"),
+              _buildCoreTeamGrid(context),
+              SizedBox(height: 30),
+
+              // Junior Team Section
+              if (_juniorTeam.isNotEmpty) ...[
+                _buildSectionTitle(context, "Junior Team"),
+                _buildJuniorTeamGrid(context),
+                SizedBox(height: 40),
+              ],
             ],
           ),
         ),
@@ -79,143 +174,51 @@ class SocietyMembersScreen extends StatelessWidget {
   }
 
   Widget _buildLeadershipRow(BuildContext context) {
+    if (_leadership.isEmpty) {
+      return Center(child: Text('No leadership data available'));
+    }
+
     return Row(
-      children: [
-        Expanded(
-          child: _buildMemberCard(
-            context,
-            name: "Suvansh Jindal",
-            role: "President",
-            department: "CSE AIML",
-            imagePath: "assets/images/suvansh.jpg",
-            instagram: "suvanshhh__",  // Just username, not full URL
-            linkedin: "suvansh-jindal-8687b3230",  // Just path, not full URL
-            email: "suvansh@example.com",
+      children: _leadership.map((leader) {
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: _buildMemberCard(
+              context,
+              member: leader,
+              isCompact: false,
+            ),
           ),
-        ),
-        SizedBox(width: 16),
-        Expanded(
-          child: _buildMemberCard(
-            context,
-            name: "Utkarsh Garg",
-            role: "Vice President",
-            department: "CSE AI",
-            imagePath: "assets/images/utkarsh.jpg",
-            instagram: "utkarsh_garg",
-            linkedin: "utkarsh-garg",
-            email: "utkarsh@example.com",
-          ),
-        ),
-      ],
+        );
+      }).toList(),
     );
   }
 
   Widget _buildCoordinatorsRow(BuildContext context) {
+    if (_coordinators.isEmpty) {
+      return Center(child: Text('No coordinator data available'));
+    }
+
     return Row(
-      children: [
-        Expanded(
-          child: _buildMemberCard(
-            context,
-            name: "Khushi Gupta",
-            role: "Student Coordinator",
-            department: "CSE AI",
-            imagePath: "assets/images/khushi.jpg",
-            instagram: "khushi_gupta",
-            linkedin: "khushi-gupta",
-            email: "khushi@example.com",
+      children: _coordinators.map((coordinator) {
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: _buildMemberCard(
+              context,
+              member: coordinator,
+              isCompact: false,
+            ),
           ),
-        ),
-        SizedBox(width: 16),
-        Expanded(
-          child: _buildMemberCard(
-            context,
-            name: "Mayur Rastogi",
-            role: "Student Coordinator",
-            department: "CSE AIML",
-            imagePath: "assets/images/mayur.jpg",
-            instagram: "mayur_rastogi",
-            linkedin: "mayur-rastogi",
-            email: "mayur@example.com",
-          ),
-        ),
-      ],
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildSeniorTeamGrid(BuildContext context) {
-    // Creating a list of senior team members
-    List<Map<String, String>> seniorTeam = [
-      {
-        "name": "Aishwarya Jain",
-        "role": "Content Head",
-        "imagePath": "assets/images/aishwarya.jpg",
-      },
-      {
-        "name": "Atharv Gupta",
-        "role": "Social Media Head",
-        "imagePath": "assets/images/atharv.jpg",
-      },
-      {
-        "name": "Deepanshi Gautam",
-        "role": "Web Development Head",
-        "imagePath": "assets/images/deepanshi.jpg",
-      },
-      {
-        "name": "Juwairia Parveen",
-        "role": "PR Head",
-        "imagePath": "assets/images/juwairia.jpg",
-      },
-      {
-        "name": "Kartikey Sharma",
-        "role": "App Development Head",
-        "imagePath": "assets/images/kartikey.jpg",
-      },
-      {
-        "name": "Kashish Sharma",
-        "role": "Event Head",
-        "imagePath": "assets/images/kashish.jpg",
-      },
-      {
-        "name": "Mahi",
-        "role": "Cultural Head",
-        "imagePath": "assets/images/mahi.jpg",
-      },
-      {
-        "name": "Parth Juneja",
-        "role": "Automation Head",
-        "imagePath": "assets/images/parth.jpg",
-      },
-      {
-        "name": "Pradeum Gaur",
-        "role": "Media Coverage Head",
-        "imagePath": "assets/images/pradeum.jpg",
-      },
-      {
-        "name": "Prayesi Agarwal",
-        "role": "DS-Google Suite Head",
-        "imagePath": "assets/images/prayesi.jpg",
-      },
-      {
-        "name": "Shivendra Ojha",
-        "role": "Operation Head",
-        "imagePath": "assets/images/shivendra.jpg",
-      },
-      {
-        "name": "Stuti Kumar",
-        "role": "Quality Assurance Head",
-        "imagePath": "assets/images/stuti.jpg",
-      },
-      {
-        "name": "Vaishnavi Pathak",
-        "role": "Designing Head",
-        "imagePath": "assets/images/vaishnavi.jpg",
-      },
-      {
-        "name": "Vanshika Vashisth",
-        "role": "Creativity Head",
-        "imagePath": "assets/images/vanshika.jpg",
-      },
-    ];
+  Widget _buildCoreTeamGrid(BuildContext context) {
+    if (_coreTeam.isEmpty) {
+      return Center(child: Text('No core team data available'));
+    }
 
     return GridView.builder(
       physics: NeverScrollableScrollPhysics(),
@@ -226,16 +229,32 @@ class SocietyMembersScreen extends StatelessWidget {
         crossAxisSpacing: 16,
         mainAxisSpacing: 20,
       ),
-      itemCount: seniorTeam.length,
+      itemCount: _coreTeam.length,
       itemBuilder: (context, index) {
         return _buildMemberCard(
           context,
-          name: seniorTeam[index]["name"]!,
-          role: seniorTeam[index]["role"]!,
-          imagePath: seniorTeam[index]["imagePath"]!,
-          instagram: seniorTeam[index]["name"]!.toLowerCase().replaceAll(" ", "_"),
-          linkedin: seniorTeam[index]["name"]!.toLowerCase().replaceAll(" ", "-"),
-          email: "${seniorTeam[index]["name"]!.split(" ")[0].toLowerCase()}@example.com",
+          member: _coreTeam[index],
+          isCompact: true,
+        );
+      },
+    );
+  }
+
+  Widget _buildJuniorTeamGrid(BuildContext context) {
+    return GridView.builder(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.8,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 20,
+      ),
+      itemCount: _juniorTeam.length,
+      itemBuilder: (context, index) {
+        return _buildMemberCard(
+          context,
+          member: _juniorTeam[index],
           isCompact: true,
         );
       },
@@ -244,13 +263,7 @@ class SocietyMembersScreen extends StatelessWidget {
 
   Widget _buildMemberCard(
       BuildContext context, {
-        required String name,
-        required String role,
-        String? department,
-        required String imagePath,
-        required String instagram,
-        required String linkedin,
-        required String email,
+        required MemberModel member,
         bool isCompact = false,
       }) {
     return Card(
@@ -289,8 +302,8 @@ class SocietyMembersScreen extends StatelessWidget {
               ),
               child: ClipOval(
                 child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.cover,
+                  'assets/images/${member.image}',
+                  fit: member.imagePosition == 'top' ? BoxFit.cover : BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: Theme.of(context).primaryColor.withOpacity(0.2),
@@ -308,7 +321,7 @@ class SocietyMembersScreen extends StatelessWidget {
 
             // Name
             Text(
-              name,
+              member.name,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: isCompact ? 16 : 18,
@@ -320,7 +333,7 @@ class SocietyMembersScreen extends StatelessWidget {
 
             // Role
             Text(
-              role,
+              member.role,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: isCompact ? 13 : 14,
@@ -329,16 +342,32 @@ class SocietyMembersScreen extends StatelessWidget {
               ),
             ),
 
-            // Department (only for non-compact cards)
-            if (department != null && !isCompact) ...[
+            // Branch (only for non-compact cards)
+            if (member.branch != null && !isCompact) ...[
               SizedBox(height: 4),
               Text(
-                department,
+                member.branch!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
                   fontStyle: FontStyle.italic,
                   color: Colors.black54,
+                ),
+              ),
+            ],
+
+            // Quote (only for non-compact cards with quotes)
+            if (member.quote != null && !isCompact) ...[
+              SizedBox(height: 8),
+              Text(
+                '"${member.quote}"',
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.black38,
                 ),
               ),
             ],
@@ -353,21 +382,24 @@ class SocietyMembersScreen extends StatelessWidget {
                   context,
                   icon: Icons.email,
                   color: Colors.red,
-                  url: "mailto:$email",
+                  url: "mailto:${member.gmail}",
                 ),
-                SizedBox(width: isCompact ? 12 : 16),
+                SizedBox(width: isCompact ? 8 : 12),
+
                 _buildSocialIcon(
                   context,
                   icon: Icons.photo_camera,
                   color: Colors.purple,
-                  url: "https://instagram.com/$instagram",
+                  url: member.instagram,
                 ),
-                SizedBox(width: isCompact ? 12 : 16),
+
+                SizedBox(width: isCompact ? 8 : 12),
+
                 _buildSocialIcon(
                   context,
                   icon: Icons.work,
                   color: Colors.blue,
-                  url: "https://linkedin.com/in/$linkedin",
+                  url: member.linkedin,
                 ),
               ],
             ),

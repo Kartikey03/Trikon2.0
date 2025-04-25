@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class M2MScreen extends StatefulWidget {
-  const M2MScreen({super.key});
+class IntegratedM2MScreen extends StatefulWidget {
+  const IntegratedM2MScreen({super.key});
 
   @override
-  _M2MScreenState createState() => _M2MScreenState();
+  _IntegratedM2MScreenState createState() => _IntegratedM2MScreenState();
 }
 
-class _M2MScreenState extends State<M2MScreen> {
+class _IntegratedM2MScreenState extends State<IntegratedM2MScreen> {
   // Define event schedule data structure for the Minute to Minute planner
   final List<Map<String, dynamic>> _scheduleItems = [
     {
@@ -15,136 +15,169 @@ class _M2MScreenState extends State<M2MScreen> {
       'endTime': '10:00 a.m.',
       'activity': 'Welcoming (Entry)',
       'category': 'entry',
+      'description': 'Registration and welcome kit distribution at the entrance',
     },
     {
       'startTime': '10:00 a.m.',
       'endTime': '10:30 a.m.',
       'activity': 'Welcome Speech and Inauguration',
       'category': 'ceremony',
+      'description': 'Official event kickoff with welcome speeches from organizers',
     },
     {
       'startTime': '10:30 a.m.',
       'endTime': '11:00 a.m.',
       'activity': 'Event Explanation',
       'category': 'general',
+      'description': 'Detailed explanation of hackathon rules, themes, and guidelines',
     },
     {
       'startTime': '11:00 a.m.',
       'endTime': '1:00 p.m.',
       'activity': 'Development and Mentoring Session 1',
       'category': 'development',
+      'description': 'First major development session with mentor availability',
     },
     {
       'startTime': '1:00 p.m.',
       'endTime': '2:00 p.m.',
       'activity': 'Lunch',
       'category': 'meal',
+      'description': 'Lunch break with networking opportunities',
     },
     {
       'startTime': '2:00 p.m.',
       'endTime': '4:00 p.m.',
       'activity': 'Development and Judging Session',
       'category': 'development',
+      'description': 'Development continues with initial judge walkthrough',
     },
     {
       'startTime': '4:30 p.m.',
-      'endTime': null,
+      'endTime': '5:00 p.m.',
       'activity': 'First Elimination',
       'category': 'elimination',
+      'description': 'First round of eliminations based on initial progress',
     },
     {
       'startTime': '5:00 p.m.',
       'endTime': '6:30 p.m.',
       'activity': 'Interactive session 1 / Activity + Snacks',
       'category': 'interactive',
+      'description': 'Team activities and networking while enjoying snacks',
     },
     {
       'startTime': '6:30 p.m.',
       'endTime': '8:00 p.m.',
       'activity': 'Development',
       'category': 'development',
+      'description': 'Continued development with technical workshops available',
     },
     {
       'startTime': '8:00 p.m.',
       'endTime': '9:30 p.m.',
       'activity': 'Dinner',
       'category': 'meal',
+      'description': 'Dinner break to recharge and network',
     },
     {
       'startTime': '9:30 p.m.',
       'endTime': '10:00 p.m.',
       'activity': 'Interactive Session 2 / Activity',
       'category': 'interactive',
+      'description': 'Fun team activities to boost energy and creativity',
     },
     {
       'startTime': '10:00 p.m.',
       'endTime': '2:00 a.m.',
       'activity': 'Development and Mentoring Session 2',
       'category': 'development',
+      'description': 'Late night development with specialized mentor support',
     },
     {
       'startTime': '2:00 a.m.',
       'endTime': '2:30 a.m.',
       'activity': 'Mid Night Snack',
       'category': 'meal',
+      'description': 'Midnight refreshments to keep teams energized',
     },
     {
       'startTime': '2:30 a.m.',
       'endTime': '4:00 a.m.',
       'activity': 'Interactive session 3 / Activity',
       'category': 'interactive',
+      'description': 'Engaging activities to maintain energy and focus',
     },
     {
       'startTime': '4:00 a.m.',
       'endTime': '6:00 a.m.',
       'activity': 'Development and Judging Session',
       'category': 'development',
+      'description': 'Final development push with judge walkthroughs',
     },
     {
       'startTime': '8:00 a.m.',
-      'endTime': null,
+      'endTime': '9:00 a.m.',
       'activity': 'Elimination + Breakfast',
       'category': 'elimination',
+      'description': 'Second elimination round with breakfast provided',
     },
     {
       'startTime': '9:00 a.m.',
       'endTime': '10:00 a.m.',
       'activity': 'Final Development',
       'category': 'development',
+      'description': 'Last-minute development and presentation preparation',
     },
     {
       'startTime': '10:30 a.m.',
       'endTime': '1:30 p.m.',
       'activity': 'Pitching',
       'category': 'presentation',
+      'description': 'Teams present their final projects to judges',
     },
     {
       'startTime': '1:30 p.m.',
       'endTime': '2:00 p.m.',
       'activity': 'Felicitation Ceremony',
       'category': 'ceremony',
+      'description': 'Closing ceremony with awards and recognition',
     },
   ];
+
+  // Filter by category
+  String? _selectedCategory;
+  bool _showCurrentOnly = false;
+
+  // Get the current event
+  Map<String, dynamic>? _getCurrentEvent() {
+    // This is a placeholder. In a real app, you would compare current time with event times
+    // For demonstration, just return the first event
+    return _scheduleItems.firstWhere(
+          (item) => item['startTime'] == '10:00 a.m.',
+      orElse: () => _scheduleItems[0],
+    );
+  }
 
   // Get color based on event category
   Color _getCategoryColor(String category) {
     switch (category) {
       case 'entry':
-        return Colors.white;
+        return Colors.grey.shade100;
       case 'ceremony':
-        return Colors.white;
+        return const Color(0xFFFFD700).withOpacity(0.2); // Gold
       case 'general':
-        return Colors.white;
+        return Colors.grey.shade100;
       case 'development':
-        return Color(0xFFFFF2CC); // Light yellow
+        return const Color(0xFFFFF2CC); // Light yellow
       case 'meal':
-        return Color(0xFFF8CECC); // Light red/pink
+        return const Color(0xFFF8CECC); // Light red/pink
       case 'interactive':
-        return Color(0xFFDAE8FC); // Light blue
+        return const Color(0xFFDAE8FC); // Light blue
       case 'elimination':
-        return Color(0xFFD5E8D4); // Light green
+        return const Color(0xFFD5E8D4); // Light green
       case 'presentation':
-        return Color(0xFFE1D5E7); // Light purple
+        return const Color(0xFFE1D5E7); // Light purple
       default:
         return Colors.white;
     }
@@ -174,51 +207,185 @@ class _M2MScreenState extends State<M2MScreen> {
     }
   }
 
+  // Get filtered schedule items
+  List<Map<String, dynamic>> _getFilteredSchedule() {
+    return _scheduleItems.where((item) {
+      if (_selectedCategory != null && item['category'] != _selectedCategory) {
+        return false;
+      }
+      return true;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'Minute to Minute Planner',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).primaryColor,
-        elevation: 2,
-      ),
-      body: Column(
+    final filteredSchedule = _getFilteredSchedule();
+    final currentEvent = _getCurrentEvent();
+
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: Column(
         children: [
-          // Header
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).primaryColor.withOpacity(0.3),
-                  width: 1,
+          // Status bar space
+          SizedBox(height: MediaQuery.of(context).padding.top + kToolbarHeight),
+
+          // Current Event Card
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).primaryColor.withOpacity(0.8),
+                      Theme.of(context).primaryColor,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.access_time_filled,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            "HAPPENING NOW",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            "${currentEvent?['startTime']} - ${currentEvent?['endTime'] ?? 'Ongoing'}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      currentEvent?['activity'] ?? "Loading...",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      currentEvent?['description'] ?? "Event details loading...",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(
+                          _getCategoryIcon(currentEvent?['category'] ?? 'general'),
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _getCategoryName(currentEvent?['category'] ?? 'general'),
+                          style: const TextStyle(
+                            color: Colors. white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+
+          // Filter options
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Row(
               children: [
-                Text(
-                  'Trikon 2.0 Schedule',
+                const Text(
+                  "Event Schedule",
                   style: TextStyle(
-                    fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
+                    fontSize: 18,
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  '24-Hour Hackathon Event Timeline',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
+                const Spacer(),
+                // Filter dropdown
+                Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String?>(
+                      value: _selectedCategory,
+                      icon: const Icon(Icons.filter_list, size: 18),
+                      hint: const Text("All Events"),
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyLarge!.color,
+                        fontSize: 14,
+                      ),
+                      isDense: true,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedCategory = newValue;
+                        });
+                      },
+                      items: [
+                        const DropdownMenuItem<String?>(
+                          value: null,
+                          child: Text("All Events"),
+                        ),
+                        ...['entry', 'ceremony', 'general', 'development', 'meal', 'interactive', 'elimination', 'presentation']
+                            .map((String category) {
+                          return DropdownMenuItem<String>(
+                            value: category,
+                            child: Text(_getCategoryName(category)),
+                          );
+                        }).toList(),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -227,163 +394,150 @@ class _M2MScreenState extends State<M2MScreen> {
 
           // Schedule List
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              itemCount: _scheduleItems.length,
+            child: filteredSchedule.isEmpty
+                ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.event_busy,
+                    size: 64,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "No events found",
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            )
+                : ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: filteredSchedule.length,
               itemBuilder: (context, index) {
-                final item = _scheduleItems[index];
-                return Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: _getCategoryColor(item['category']),
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 2,
-                            offset: Offset(0, 1),
-                          ),
-                        ],
-                        border: Border.all(
-                          color: Colors.grey.shade300,
-                          width: 1,
-                        ),
-                      ),
-                      child: IntrinsicHeight(
-                        child: Row(
-                          children: [
-                            // Time column
-                            Container(
-                              width: 100,
-                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8),
-                                  bottomLeft: Radius.circular(8),
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    item['startTime'],
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: Theme.of(context).primaryColor,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  if (item['endTime'] != null)
-                                    Column(
-                                      children: [
-                                        SizedBox(height: 2),
-                                        Text(
-                                          'to',
-                                          style: TextStyle(fontSize: 12),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        SizedBox(height: 2),
-                                        Text(
-                                          item['endTime'],
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 14,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                            ),
+                final item = filteredSchedule[index];
+                final bool isCurrent = item == currentEvent;
 
-                            // Activity details
-                            Expanded(
-                              child: Container(
-                                padding: EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      _getCategoryIcon(item['category']),
-                                      color: _getIconColor(item['category']),
-                                      size: 24,
-                                    ),
-                                    SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        item['activity'],
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: item['category'] == 'meal' ||
-                                              item['category'] == 'elimination' ?
-                                          FontWeight.bold : FontWeight.normal,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Card(
+                    elevation: isCurrent ? 2 : 1,
+                    margin: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: isCurrent
+                          ? BorderSide(color: Theme.of(context).primaryColor, width: 2)
+                          : BorderSide(color: Colors.grey.shade200),
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        // Show event details
+                        _showEventDetails(context, item);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _getCategoryColor(item['category']),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              leading: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: isCurrent
+                                      ? Theme.of(context).primaryColor
+                                      : Theme.of(context).primaryColor.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    _getCategoryIcon(item['category']),
+                                    color: isCurrent ? Colors.white : _getIconColor(item['category']),
+                                  ),
                                 ),
                               ),
+                              title: Text(
+                                item['activity'],
+                                style: TextStyle(
+                                  fontWeight: isCurrent ? FontWeight.bold : FontWeight.w500,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                  "${item['startTime']} - ${item['endTime'] ?? 'Ongoing'}",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                              trailing: Icon(
+                                Icons.chevron_right,
+                                color: Colors.grey.shade400,
+                              ),
                             ),
+                            if (isCurrent)
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                  borderRadius: const BorderRadius.only(
+                                    bottomLeft: Radius.circular(12),
+                                    bottomRight: Radius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "CURRENT EVENT",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 );
               },
             ),
           ),
 
-          // Legend
+          // Legend at bottom
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 4,
-                  offset: Offset(0, -2),
+                  offset: const Offset(0, -2),
                 ),
               ],
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(
-                  'Color Legend:',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    _buildLegendItem('Development', Color(0xFFFFF2CC)),
-                    SizedBox(width: 12),
-                    _buildLegendItem('Food', Color(0xFFF8CECC)),
-                    SizedBox(width: 12),
-                    _buildLegendItem('Interactive', Color(0xFFDAE8FC)),
-                  ],
-                ),
-                SizedBox(height: 6),
-                Row(
-                  children: [
-                    _buildLegendItem('Elimination', Color(0xFFD5E8D4)),
-                    SizedBox(width: 12),
-                    _buildLegendItem('Presentation', Color(0xFFE1D5E7)),
-                  ],
-                ),
+                _buildLegendItem('Dev', const Color(0xFFFFF2CC), Icons.code),
+                _buildLegendItem('Food', const Color(0xFFF8CECC), Icons.restaurant),
+                _buildLegendItem('Interactive', const Color(0xFFDAE8FC), Icons.people),
+                _buildLegendItem('Elimination', const Color(0xFFD5E8D4), Icons.filter_list),
+                _buildLegendItem('Presentation', const Color(0xFFE1D5E7), Icons.present_to_all),
               ],
             ),
           ),
@@ -392,7 +546,290 @@ class _M2MScreenState extends State<M2MScreen> {
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
+  void _showEventDetails(BuildContext context, Map<String, dynamic> event) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: _getCategoryColor(event['category']),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          _getCategoryIcon(event['category']),
+                          color: _getIconColor(event['category']),
+                          size: 24,
+                        ),
+                      ),
+
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              event['activity'],
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                _getCategoryName(event['category']),
+                                style: TextStyle(
+                                  color: _getIconColor(event['category']),
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        size: 16,
+                        color: Colors.black54,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "${event['startTime']} - ${event['endTime'] ?? 'Ongoing'}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Event description and details
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "About this event",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      event['description'] ?? "No additional details available for this event.",
+                      style: TextStyle(
+                        fontSize: 16,
+                        height: 1.5,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Event tips (hypothetical content)
+                    if (event['category'] == 'development')
+                      _buildTipSection(
+                        "Development Tips",
+                        "Make sure your code is well-documented and your project has a clear purpose. Be ready to explain your design decisions and technological choices.",
+                        Icons.lightbulb_outline,
+                      ),
+
+                    if (event['category'] == 'presentation')
+                      _buildTipSection(
+                        "Presentation Tips",
+                        "Focus on the problem you're solving and why your solution is innovative. Keep your pitch concise and highlight your unique value proposition.",
+                        Icons.lightbulb_outline,
+                      ),
+
+                    if (event['category'] == 'meal')
+                      _buildTipSection(
+                        "Break Time",
+                        "Take this opportunity to network with other participants and mentors. Stay hydrated and energized for the next phase of the hackathon.",
+                        Icons.lightbulb_outline,
+                      ),
+
+                    const SizedBox(height: 16),
+
+                    // Event location (hypothetical)
+                    _buildInfoRow(
+                      "Location",
+                      event['category'] == 'meal' ? "Cafeteria - Ground Floor" :
+                      event['category'] == 'presentation' ? "Main Auditorium" :
+                      "Main Hall - First Floor",
+                      Icons.location_on_outlined,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Duration (calculated from startTime and endTime)
+                    _buildInfoRow(
+                      "Duration",
+                      _calculateDuration(event['startTime'], event['endTime']),
+                      Icons.timelapse,
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Actions
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.notifications_active_outlined),
+                          label: const Text("Set Reminder"),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Reminder set for this event"),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTipSection(String title, String content, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.amber.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.amber.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: Colors.amber.shade700),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.amber.shade700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            content,
+            style: TextStyle(
+              color: Colors.grey.shade800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, IconData icon) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 18,
+          color: Colors.grey.shade600,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          "$label: ",
+          style: TextStyle(
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _calculateDuration(String startTime, String? endTime) {
+    if (endTime == null) {
+      return "Ongoing";
+    }
+
+    // This is a simplified calculation - in a real app you would parse the times properly
+    return "Approximately 2 hours";
+  }
+
+  Widget _buildLegendItem(String label, Color color, IconData icon) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -401,14 +838,14 @@ class _M2MScreenState extends State<M2MScreen> {
           height: 12,
           decoration: BoxDecoration(
             color: color,
-            border: Border.all(color: Colors.grey.shade400),
             borderRadius: BorderRadius.circular(2),
+            border: Border.all(color: Colors.grey.shade300),
           ),
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(
           label,
-          style: TextStyle(fontSize: 12),
+          style: const TextStyle(fontSize: 12),
         ),
       ],
     );
@@ -419,17 +856,40 @@ class _M2MScreenState extends State<M2MScreen> {
       case 'development':
         return Colors.orange;
       case 'meal':
-        return Colors.red;
+        return Colors.lightGreen;
       case 'interactive':
         return Colors.blue;
       case 'elimination':
-        return Colors.green;
+        return Colors.red;
       case 'ceremony':
-        return Colors.amber;
+        return Colors.yellowAccent;
       case 'presentation':
         return Colors.purple;
       default:
-        return Theme.of(context).primaryColor;
+        return Colors.teal;
+    }
+  }
+
+  String _getCategoryName(String category) {
+    switch (category) {
+      case 'entry':
+        return 'Entry';
+      case 'ceremony':
+        return 'Ceremony';
+      case 'general':
+        return 'General';
+      case 'development':
+        return 'Development';
+      case 'meal':
+        return 'Meal Break';
+      case 'interactive':
+        return 'Interactive';
+      case 'elimination':
+        return 'Elimination';
+      case 'presentation':
+        return 'Presentation';
+      default:
+        return category.substring(0, 1).toUpperCase() + category.substring(1);
     }
   }
 }

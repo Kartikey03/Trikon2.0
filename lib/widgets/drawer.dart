@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:trikon2/screens/contact_screen.dart';
 import 'package:trikon2/screens/signinup_screen.dart';
 import 'dart:io';
 import '../screens/intellia_member_screen.dart';
@@ -97,7 +98,10 @@ class _MyDrawerState extends State<MyDrawer> {
 
   void _navigateToContactUs() {
     Navigator.pop(context);
-    // Add navigation to Contact Us page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ContactUsPage()),
+    );
   }
 
   // Helper method for menu items that was missing

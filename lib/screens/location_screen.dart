@@ -15,6 +15,7 @@ class LocationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Event Location'),
         centerTitle: true,
         elevation: 0,
@@ -31,7 +32,8 @@ class LocationScreen extends StatelessWidget {
                   height: 250,
                   width: double.infinity,
                   child: Image.asset(
-                    'assets/images/map.jpg',
+
+                    'assets/images/map.png',
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -39,7 +41,7 @@ class LocationScreen extends StatelessWidget {
                   bottom: 16,
                   right: 16,
                   child: ElevatedButton.icon(
-                    onPressed: () => _launchMaps(37.7749, -122.4194), // Example coordinates
+                    onPressed: () => _launchMaps(28.972638, 77.641274),
                     icon: const Icon(Icons.directions),
                     label: const Text('GET DIRECTIONS'),
                     style: ElevatedButton.styleFrom(

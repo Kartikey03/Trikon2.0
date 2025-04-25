@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:trikon2/screens/qr_scan.dart';
+import 'admin_screen.dart';
 import 'homescreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -21,6 +23,10 @@ class _AuthPageState extends State<AuthPage> {
   bool _isLoading = false;
   bool _checkingAuthStatus = true;
   bool _isResettingPassword = false;
+
+  // Admin credentials
+  final String _adminEmail = "intelliasociety@gmail.com";
+  final String _adminPassword = "wow123";
 
   // List of years, departments and branches for dropdowns
   final List<String> _years = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
@@ -48,13 +54,26 @@ class _AuthPageState extends State<AuthPage> {
       final currentUser = FirebaseAuth.instance.currentUser;
 
       if (currentUser != null) {
-        // User is signed in, navigate to HomePage
-        Future.delayed(Duration.zero, () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-          );
-        });
+        // Check if the signed-in user is an admin
+        if (currentUser.email == _adminEmail) {
+          // Route to admin page
+          Future.delayed(Duration.zero, () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminScreen()),
+                (route) => false,
+            );
+          });
+        } else {
+          // Route to regular user page
+          Future.delayed(Duration.zero, () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+                  (route) => false,
+            );
+          });
+        }
       }
     } catch (e) {
       print("Error checking authentication status: $e");
@@ -633,20 +652,40 @@ class _AuthPageState extends State<AuthPage> {
 
                               try {
                                 if (isLogin) {
-                                  // Sign in
-                                  await FirebaseAuth.instance
-                                      .signInWithEmailAndPassword(email: email, password: password);
+                                  // Check if the login is for admin credentials
+                                  if (email == _adminEmail && password == _adminPassword) {
+                                    // For admin login, we can either:
+                                    // Option 1: Sign in with Firebase (if admin account exists)
+                                    await FirebaseAuth.instance
+                                        .signInWithEmailAndPassword(email: email, password: password);
 
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Signed in successfully')),
-                                    );
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Admin signed in successfully')),
+                                      );
 
-                                    // Navigate to HomePage on successful login
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => const HomeScreen()),
-                                    );
+                                      // Navigate to Admin page
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const AdminScreen()),
+                                      );
+                                    }
+                                  } else {
+                                    // Regular user login
+                                    await FirebaseAuth.instance
+                                        .signInWithEmailAndPassword(email: email, password: password);
+
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Signed in successfully')),
+                                      );
+
+                                      // Navigate to regular user page
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                                      );
+                                    }
                                   }
                                 } else {
                                   // Sign up with additional info
@@ -668,16 +707,16 @@ class _AuthPageState extends State<AuthPage> {
 
                                   // Store user details in Firebase Realtime Database
                                   await _writeUserData(
-                                      userCredential.user!.uid,
-                                      name,
-                                      email,
-                                      phone,
-                                      year,
-                                      department,
-                                      branch,
-                                      breakfast,
-                                      lunch,
-                                      dinner,
+                                    userCredential.user!.uid,
+                                    name,
+                                    email,
+                                    phone,
+                                    year,
+                                    department,
+                                    branch,
+                                    breakfast,
+                                    lunch,
+                                    dinner,
                                   );
 
                                   // Sign out immediately after storing data
