@@ -638,6 +638,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
                   const SizedBox(height: 32),
 
+
                   // Sponsors with Enhanced Visual Appeal
                   const Text(
                     'Our Sponsors',
