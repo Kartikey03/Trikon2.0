@@ -67,10 +67,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
               // Logo positioned between top and middle with proper circular clipping
               SizedBox(
-                height: 150,
+                height: 170,
                 child: Container(
-                  width: 150,
-                  height: 150,
+                  width: 170,
+                  height: 170,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
@@ -89,7 +89,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
               // Lottie animation positioned between middle and bottom
               SizedBox(
-                height: 300,
+                height: 350,
                 child: Lottie.asset(
                   'assets/animations/loading.json',
                   controller: _controller,

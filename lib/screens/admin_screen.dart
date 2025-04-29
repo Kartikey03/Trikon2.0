@@ -198,7 +198,7 @@ class _AdminScreenState extends State<AdminScreen> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.timelapse),
-                label: 'M2M',
+                label: 'Schedule',
                 activeIcon: Icon(Icons.timelapse, size: 28),
               ),
               BottomNavigationBarItem(

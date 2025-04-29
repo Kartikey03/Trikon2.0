@@ -6,7 +6,6 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 
-
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
@@ -294,10 +293,6 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
     }
   }
 
-  Future<void> _signOut() async {
-    await FirebaseAuth.instance.signOut();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -310,11 +305,6 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
             icon: const Icon(Icons.refresh),
             onPressed: _fetchCurrentUserProfile,
             tooltip: 'Refresh data',
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _signOut,
-            tooltip: 'Sign out',
           ),
         ],
       ),

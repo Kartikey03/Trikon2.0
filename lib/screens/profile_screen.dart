@@ -355,6 +355,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // QR Code Section - NEW
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.qr_code, color: Colors.indigo.shade800),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Your QR Code',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Divider(),
+                            const SizedBox(height: 16),
+
+                            // QR Code image with centered container
+                            Center(
+                              child: Container(
+                                width: 200,
+                                height: 200,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      spreadRadius: 1,
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                // TODO: Replace with actual QR code generation
+                                child: Image.asset(
+                                  'assets/images/placeholder_qr.png', // Add a placeholder QR image to your assets
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Share QR button
+                            // SizedBox(
+                            //   width: double.infinity,
+                            //   child: ElevatedButton.icon(
+                            //     onPressed: _shareQRCode,
+                            //     icon: const Icon(Icons.share),
+                            //     label: const Text('Share My QR Code'),
+                            //     style: ElevatedButton.styleFrom(
+                            //       backgroundColor: Colors.indigo.shade800,
+                            //       foregroundColor: Colors.white,
+                            //       padding: const EdgeInsets.symmetric(vertical: 12),
+                            //       shape: RoundedRectangleBorder(
+                            //         borderRadius: BorderRadius.circular(10),
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+
+                            const SizedBox(height: 8),
+
+                            // Usage hint text
+                            Center(
+                              child: Text(
+                                'Let others scan your QR code to connect with you',
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontSize: 14,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
                     // Personal Information Section
                     Card(
                       elevation: 2,
@@ -574,98 +667,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
-
-                    // QR Code Section - NEW
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.qr_code, color: Colors.indigo.shade800),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Your QR Code',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Divider(),
-                            const SizedBox(height: 16),
-
-                            // QR Code image with centered container
-                            Center(
-                              child: Container(
-                                width: 200,
-                                height: 200,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.grey.shade300),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.2),
-                                      spreadRadius: 1,
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                // TODO: Replace with actual QR code generation
-                                child: Image.asset(
-                                  'assets/images/placeholder_qr.png', // Add a placeholder QR image to your assets
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            // Share QR button
-                            // SizedBox(
-                            //   width: double.infinity,
-                            //   child: ElevatedButton.icon(
-                            //     onPressed: _shareQRCode,
-                            //     icon: const Icon(Icons.share),
-                            //     label: const Text('Share My QR Code'),
-                            //     style: ElevatedButton.styleFrom(
-                            //       backgroundColor: Colors.indigo.shade800,
-                            //       foregroundColor: Colors.white,
-                            //       padding: const EdgeInsets.symmetric(vertical: 12),
-                            //       shape: RoundedRectangleBorder(
-                            //         borderRadius: BorderRadius.circular(10),
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
-
-                            const SizedBox(height: 8),
-
-                            // Usage hint text
-                            Center(
-                              child: Text(
-                                'Let others scan your QR code to connect with you',
-                                style: TextStyle(
-                                  color: Colors.grey.shade700,
-                                  fontSize: 14,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
 
                     const SizedBox(height: 30),
 

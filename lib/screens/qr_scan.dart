@@ -6,7 +6,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'dart:convert';
 
 class MealTrackerHome extends StatefulWidget {
-  const MealTrackerHome({Key? key}) : super(key: key);
+  const MealTrackerHome({super.key});
 
   @override
   State<MealTrackerHome> createState() => _MealTrackerHomeState();
@@ -26,7 +26,7 @@ class _MealTrackerHomeState extends State<MealTrackerHome> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/logo.png', // Add your hackathon logo here
+              'assets/images/trikon_logo.jpg', // Add your hackathon logo here
               height: 150,
               errorBuilder: (context, error, stackTrace) =>
                   Icon(Icons.qr_code_scanner, size: 150, color: Theme.of(context).primaryColor),

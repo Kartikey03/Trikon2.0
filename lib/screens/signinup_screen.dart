@@ -23,6 +23,7 @@ class _AuthPageState extends State<AuthPage> {
   bool _isLoading = false;
   bool _checkingAuthStatus = true;
   bool _isResettingPassword = false;
+  bool _isVerificationEmailSent = false;
 
   // Admin credentials
   final String _adminEmail = "intelliasociety@gmail.com";
@@ -54,24 +55,32 @@ class _AuthPageState extends State<AuthPage> {
       final currentUser = FirebaseAuth.instance.currentUser;
 
       if (currentUser != null) {
-        // Check if the signed-in user is an admin
-        if (currentUser.email == _adminEmail) {
-          // Route to admin page
-          Future.delayed(Duration.zero, () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const AdminScreen()),
-                (route) => false,
-            );
-          });
+        // Check if the user's email is verified
+        if (currentUser.emailVerified || currentUser.email == _adminEmail) {
+          // Check if the signed-in user is an admin
+          if (currentUser.email == _adminEmail) {
+            // Route to admin page
+            Future.delayed(Duration.zero, () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const AdminScreen()),
+                    (route) => false,
+              );
+            });
+          } else {
+            // Route to regular user page
+            Future.delayed(Duration.zero, () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    (route) => false,
+              );
+            });
+          }
         } else {
-          // Route to regular user page
+          // Show email verification needed message
           Future.delayed(Duration.zero, () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  (route) => false,
-            );
+            _showEmailVerificationNeededDialog(currentUser);
           });
         }
       }
@@ -85,6 +94,109 @@ class _AuthPageState extends State<AuthPage> {
         });
       }
     }
+  }
+
+  // Show dialog for email verification needed
+  void _showEmailVerificationNeededDialog(User user) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Email Verification Required'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Your email has not been verified yet. Please check your email for a verification link.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Email: ${user.email}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              // Sign out first
+              await FirebaseAuth.instance.signOut();
+              Navigator.of(context).pop();
+            },
+            child: const Text('Sign Out'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                setState(() {
+                  _isLoading = true;
+                });
+                // Resend verification email
+                await user.sendEmailVerification();
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Verification email sent! Please check your inbox.'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error sending verification email: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              } finally {
+                if (mounted) {
+                  setState(() {
+                    _isLoading = false;
+                  });
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.tealAccent.shade700,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Resend Verification Email'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Show verification email sent dialog
+  void _showVerificationEmailSentDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Verify Your Email'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'A verification link has been sent to your email address. Please check your inbox and click the link to verify your email before logging in.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Email: ${_emailController.text}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   // Write user data to Realtime Database
@@ -101,6 +213,7 @@ class _AuthPageState extends State<AuthPage> {
         'breakfast': false,
         'lunch': false,
         'dinner': false,
+        'emailVerified': false,
         'createdAt': DateTime.now().toIso8601String(),
       });
       print("User data added to Realtime Database successfully");
@@ -156,6 +269,19 @@ class _AuthPageState extends State<AuthPage> {
           _isResettingPassword = false;
         });
       }
+    }
+  }
+
+  // Send verification email
+  Future<void> _sendVerificationEmail(User user) async {
+    try {
+      await user.sendEmailVerification();
+      setState(() {
+        _isVerificationEmailSent = true;
+      });
+    } catch (e) {
+      print("Error sending verification email: $e");
+      throw e;
     }
   }
 
@@ -222,6 +348,13 @@ class _AuthPageState extends State<AuthPage> {
         ],
       ),
     );
+  }
+
+  // Check if email is verified (with reload for latest status)
+  Future<bool> _checkEmailVerified(User user) async {
+    await user.reload();
+    User? refreshedUser = FirebaseAuth.instance.currentUser;
+    return refreshedUser != null && refreshedUser.emailVerified;
   }
 
   @override
@@ -672,19 +805,28 @@ class _AuthPageState extends State<AuthPage> {
                                     }
                                   } else {
                                     // Regular user login
-                                    await FirebaseAuth.instance
+                                    UserCredential userCredential = await FirebaseAuth.instance
                                         .signInWithEmailAndPassword(email: email, password: password);
 
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Signed in successfully')),
-                                      );
+                                    // Check if email is verified
+                                    if (userCredential.user != null && userCredential.user!.emailVerified) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Signed in successfully')),
+                                        );
 
-                                      // Navigate to regular user page
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => const HomeScreen()),
-                                      );
+                                        // Navigate to regular user page
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const HomeScreen()),
+                                        );
+                                      }
+                                    } else {
+                                      // Email not verified
+                                      if (mounted) {
+                                        // Show dialog to verify email
+                                        _showEmailVerificationNeededDialog(userCredential.user!);
+                                      }
                                     }
                                   }
                                 } else {
@@ -705,6 +847,9 @@ class _AuthPageState extends State<AuthPage> {
                                   // Update display name in Firebase Auth
                                   await userCredential.user!.updateDisplayName(name);
 
+                                  // Send verification email
+                                  await _sendVerificationEmail(userCredential.user!);
+
                                   // Store user details in Firebase Realtime Database
                                   await _writeUserData(
                                     userCredential.user!.uid,
@@ -719,8 +864,10 @@ class _AuthPageState extends State<AuthPage> {
                                     dinner,
                                   );
 
-                                  // Sign out immediately after storing data
-                                  await FirebaseAuth.instance.signOut();
+                                  // Show verification email sent dialog
+                                  if (mounted) {
+                                    _showVerificationEmailSentDialog();
+                                  }
 
                                   // Clear password field
                                   _passwordController.clear();
@@ -735,7 +882,7 @@ class _AuthPageState extends State<AuthPage> {
                                     // Show success message
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('Account created successfully. Please login.'),
+                                        content: Text('Account created successfully. Please verify your email before logging in.'),
                                         backgroundColor: Colors.green,
                                       ),
                                     );

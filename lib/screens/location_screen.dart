@@ -4,8 +4,15 @@ import 'package:url_launcher/url_launcher.dart';
 class LocationScreen extends StatelessWidget {
   const LocationScreen({super.key});
 
-  void _launchMaps(double lat, double lng) async {
-    final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+  void _launchMaps(String code) async {
+    final url = 'https://maps.app.goo.gl/g68F8MHeB1foR2LX6';
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
+  }
+
+  void _launchSpecificLocation(String plusCode) async {
+    final url = 'https://maps.app.goo.gl/APMauBbuyCKim8SZA';
     if (await canLaunch(url)) {
       await launch(url);
     }
@@ -32,7 +39,6 @@ class LocationScreen extends StatelessWidget {
                   height: 250,
                   width: double.infinity,
                   child: Image.asset(
-
                     'assets/images/map.png',
                     fit: BoxFit.cover,
                   ),
@@ -41,7 +47,7 @@ class LocationScreen extends StatelessWidget {
                   bottom: 16,
                   right: 16,
                   child: ElevatedButton.icon(
-                    onPressed: () => _launchMaps(28.972638, 77.641274),
+                    onPressed: () => _launchMaps('Meerut Institute of Engineering and Technology, Meerut'),
                     icon: const Icon(Icons.directions),
                     label: const Text('GET DIRECTIONS'),
                     style: ElevatedButton.styleFrom(
@@ -185,23 +191,25 @@ class LocationScreen extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
-                        children: const [
-                          TransportOption(
+                        children: [
+                          const TransportOption(
                             icon: Icons.directions_car,
                             title: 'By Car',
-                            description: 'Campus parking available in Lot B for \$10/day. Limited spaces available.',
+                            description: 'Campus parking available.',
                           ),
-                          Divider(height: 24),
-                          TransportOption(
+                          const Divider(height: 24),
+                          TransportOptionWithButton(
                             icon: Icons.directions_bus,
                             title: 'Public Transit',
-                            description: 'Bus lines 5, 10, and 38 stop directly in front of the venue. The nearest subway station is University Square (0.3 miles).',
+                            description: 'Meerut south RRTS station is nearby.',
+                            buttonText: 'VIEW TRANSIT LOCATION',
+                            onPressed: () => _launchSpecificLocation('MEERUT SOUTH RRTS Station'),
                           ),
-                          Divider(height: 24),
-                          TransportOption(
+                          const Divider(height: 24),
+                          const TransportOption(
                             icon: Icons.pedal_bike,
-                            title: 'Bike Sharing',
-                            description: 'City bike sharing station located at the entrance. Secure bike parking available.',
+                            title: 'Bike',
+                            description: 'Secure bike parking available.',
                           ),
                         ],
                       ),
@@ -361,6 +369,88 @@ class TransportOption extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class TransportOptionWithButton extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final String buttonText;
+  final VoidCallback onPressed;
+
+  const TransportOptionWithButton({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.buttonText,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            icon,
+            color: Theme.of(context).primaryColor,
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: onPressed,
+                icon: const Icon(Icons.location_on, size: 18),
+                label: Text(buttonText),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],

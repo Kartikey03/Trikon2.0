@@ -189,127 +189,127 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                   // Feature Banner with 3D Effect
                   Transform.translate(
                     offset: const Offset(0, -20),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            const Color(0xFF3B82F6),
-                            const Color(0xFF1D4ED8),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF3B82F6).withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Colors.white,
-                            blurRadius: 0,
-                            offset: const Offset(1, 1),
-                            spreadRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: const Text(
-                                    '28-HOUR HACKATHON',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  'The Ultimate Tech Experience',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Where innovation meets opportunity',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: const [
-                                    Icon(Icons.calendar_today, color: Colors.white, size: 16),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'May 3-4, 2025',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.5),
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.blue.shade800.withOpacity(0.5),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: ShaderMask(
-                              shaderCallback: (Rect bounds) {
-                                return const LinearGradient(
-                                  colors: [Colors.white, Color(0xFFADD8FF)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ).createShader(bounds);
-                              },
-                              child: const Icon(
-                                Icons.rocket_launch_rounded,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // child: Container(
+                    //   margin: const EdgeInsets.only(bottom: 16),
+                    //   padding: const EdgeInsets.all(24),
+                    //   decoration: BoxDecoration(
+                    //     gradient: LinearGradient(
+                    //       colors: [
+                    //         const Color(0xFF3B82F6),
+                    //         const Color(0xFF1D4ED8),
+                    //       ],
+                    //       begin: Alignment.topLeft,
+                    //       end: Alignment.bottomRight,
+                    //     ),
+                    //     borderRadius: BorderRadius.circular(20),
+                    //     boxShadow: [
+                    //       BoxShadow(
+                    //         color: const Color(0xFF3B82F6).withOpacity(0.3),
+                    //         blurRadius: 20,
+                    //         offset: const Offset(0, 10),
+                    //         spreadRadius: 0,
+                    //       ),
+                    //       BoxShadow(
+                    //         color: Colors.white,
+                    //         blurRadius: 0,
+                    //         offset: const Offset(1, 1),
+                    //         spreadRadius: 0,
+                    //       ),
+                    //     ],
+                    //   ),
+                    //   child: Row(
+                    //     children: [
+                    //       Expanded(
+                    //         child: Column(
+                    //           crossAxisAlignment: CrossAxisAlignment.start,
+                    //           children: [
+                    //             Container(
+                    //               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    //               decoration: BoxDecoration(
+                    //                 color: Colors.white.withOpacity(0.2),
+                    //                 borderRadius: BorderRadius.circular(30),
+                    //               ),
+                    //               child: const Text(
+                    //                 '28-HOUR HACKATHON',
+                    //                 style: TextStyle(
+                    //                   fontSize: 12,
+                    //                   fontWeight: FontWeight.bold,
+                    //                   color: Colors.white,
+                    //                   letterSpacing: 1.2,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             const SizedBox(height: 12),
+                    //             const Text(
+                    //               'The Ultimate Tech Experience',
+                    //               style: TextStyle(
+                    //                 fontSize: 22,
+                    //                 fontWeight: FontWeight.bold,
+                    //                 color: Colors.white,
+                    //               ),
+                    //             ),
+                    //             const SizedBox(height: 8),
+                    //             const Text(
+                    //               'Where innovation meets opportunity',
+                    //               style: TextStyle(
+                    //                 fontSize: 14,
+                    //                 color: Colors.white,
+                    //                 fontWeight: FontWeight.w500,
+                    //               ),
+                    //             ),
+                    //             const SizedBox(height: 16),
+                    //             Row(
+                    //               children: const [
+                    //                 Icon(Icons.calendar_today, color: Colors.white, size: 16),
+                    //                 SizedBox(width: 6),
+                    //                 Text(
+                    //                   'May 3-4, 2025',
+                    //                   style: TextStyle(
+                    //                     color: Colors.white,
+                    //                     fontWeight: FontWeight.w500,
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //       Container(
+                    //         width: 80,
+                    //         height: 80,
+                    //         decoration: BoxDecoration(
+                    //           color: Colors.white.withOpacity(0.15),
+                    //           shape: BoxShape.circle,
+                    //           border: Border.all(
+                    //             color: Colors.white.withOpacity(0.5),
+                    //             width: 2,
+                    //           ),
+                    //           boxShadow: [
+                    //             BoxShadow(
+                    //               color: Colors.blue.shade800.withOpacity(0.5),
+                    //               blurRadius: 12,
+                    //               offset: const Offset(0, 5),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //         child: ShaderMask(
+                    //           shaderCallback: (Rect bounds) {
+                    //             return const LinearGradient(
+                    //               colors: [Colors.white, Color(0xFFADD8FF)],
+                    //               begin: Alignment.topLeft,
+                    //               end: Alignment.bottomRight,
+                    //             ).createShader(bounds);
+                    //           },
+                    //           child: const Icon(
+                    //             Icons.rocket_launch_rounded,
+                    //             color: Colors.white,
+                    //             size: 40,
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                   ),
 
                   // Quick Info Cards with Hover Effect
@@ -338,7 +338,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                                 context,
                                 icon: Icons.people_alt_rounded,
                                 title: 'Teams',
-                                subtitle: '2-5 Members',
+                                subtitle: '3-5 Members',
                                 color: const Color(0xFFEF4444),
                               ),
                             ),
@@ -692,12 +692,12 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                           child: Row(
                             children: const [
                               SponsorLogo(
-                                image: 'assets/images/sponsor_plat.jpg',
+                                image: 'assets/images/sponsor_plat.png',
                                 width: 200,
                               ),
                               SponsorLogo(
                                 image: 'assets/images/sponsor_plat2.jpg',
-                                width: 180,
+                                width: 200,
                               ),
                             ],
                           ),
@@ -706,6 +706,141 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                     ),
                   ),
 
+
+
+
+                  // NEW SECTION: Gold Sponsors
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.star,
+                              color: Color(0xFFE0D005),
+                              size: 24,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Gold Sponsors',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: const [
+                              SponsorLogo(
+                                image: 'assets/images/gold_sponsor.png',
+                                width: 180,
+                              ),
+                              SponsorLogo(
+                                image: 'assets/images/sponsor_bronze.jpg',
+                                width: 180,
+                              ),                              // You can add more gold sponsors the future
+                            ],
+                          ),
+                        ),
+                        // const SizedBox(height: 12),
+                        // const Text(
+                        //   'Providing amazing swag and gifts for all participants',
+                        //   style: TextStyle(
+                        //     fontSize: 14,
+                        //     color: Color(0xFF64748B),
+                        //     fontStyle: FontStyle.italic,
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.workspace_premium,
+                              color: Color(0xFFB45309), // Bronze color
+                              size: 24,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Bronze Sponsors',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Row(
+                            children: const [
+                              // SponsorLogo(
+                              //   image: 'assets/images/sponsor_bronze.jpg',
+                              //   width: 160,
+                              // ),
+                              // SponsorLogo(
+                              //   image: 'assets/images/sponsor_bronze2.jpg',
+                              //   width: 160,
+                              // ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text(
+                          'Supporting the tech community',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF64748B),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   // NEW SECTION: Swag Sponsors
                   const SizedBox(height: 20),
                   Container(
@@ -753,74 +888,18 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                                 image: 'assets/images/sponsor_swag.jpg',
                                 width: 180,
                               ),
-                              // You can add more swag sponsors here in the future
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Providing amazing swag and gifts for all participants',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF64748B),
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // NEW SECTION: Gold Sponsors
-                  const SizedBox(height: 20),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.star,
-                              color: Color(0xFFE0D005),
-                              size: 24,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Gold Sponsors',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          child: Row(
-                            children: const [
                               SponsorLogo(
-                                image: 'assets/images/sponsor_gold.png',
+                                image: 'assets/images/sponsor_swag3.jpg',
+                                width: 180,
+                              ),                              // You can add more swag sponsors here in the future
+                              SponsorLogo(
+                                image: 'assets/images/sponsor_swag2.jpg',
                                 width: 180,
                               ),
-                              // You can add more swag sponsors here in the future
                             ],
                           ),
                         ),
+
                         const SizedBox(height: 12),
                         const Text(
                           'Providing amazing swag and gifts for all participants',
@@ -843,6 +922,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
       ),
     );
   }
+
 
   Widget _buildInfoCard(
       BuildContext context, {

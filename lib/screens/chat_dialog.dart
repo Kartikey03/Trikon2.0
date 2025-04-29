@@ -290,11 +290,8 @@ class _ChatDialogState extends State<ChatDialog> {
                   Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: Colors.deepPurple[200],
-                        child: Icon(
-                          Icons.auto_awesome,
-                          color: Colors.white,
-                        ),
+                        backgroundImage: AssetImage("assets/images/trix.jpg"),
+                        radius: 20,
                       ),
                       SizedBox(width: 10),
                       Text(
@@ -443,8 +440,8 @@ class ChatMessage {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CircleAvatar(
-              backgroundColor: Colors.deepPurple[200],
-              child: const Icon(Icons.auto_awesome, color: Colors.white),
+              backgroundImage: AssetImage("assets/images/trix.jpg"),
+              radius: 20,
             ),
             const SizedBox(width: 8),
             Container(
@@ -485,15 +482,8 @@ class ChatMessage {
         children: [
           if (!isUser) ...[
             CircleAvatar(
-              backgroundColor: isSystem
-                  ? Colors.blue[200]
-                  : (isError ? Colors.red[200] : Colors.deepPurple[200]),
-              child: Icon(
-                isSystem
-                    ? Icons.info
-                    : (isError ? Icons.error : Icons.auto_awesome),
-                color: Colors.white,
-              ),
+              backgroundImage: AssetImage("assets/images/trix.jpg"),
+              radius: 20,
             ),
             const SizedBox(width: 8),
           ],

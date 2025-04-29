@@ -6,7 +6,6 @@ import 'package:trikon2/screens/contact_screen.dart';
 import 'package:trikon2/screens/signinup_screen.dart';
 import 'dart:io';
 import '../screens/intellia_member_screen.dart';
-import '../screens/aboutus_screen.dart';
 import '../screens/feedback_screen.dart';
 
 class MyDrawer extends StatefulWidget {
@@ -78,14 +77,6 @@ class _MyDrawerState extends State<MyDrawer> {
       context,
       MaterialPageRoute(builder: (context) => SocietyMembersScreen()),
     );
-  }
-
-  void _navigateToAboutUs() {
-    // Navigator.pop(context);
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => AboutUsScreen()),
-    // );
   }
 
   void _navigateToFeedbackForm() {
@@ -214,13 +205,6 @@ class _MyDrawerState extends State<MyDrawer> {
               icon: Icons.groups_outlined,
               text: "Society Members",
               onTap: _navigateToSocietyMembers,
-            ),
-
-            _buildMenuItem(
-              context,
-              icon: Icons.info_outline_rounded,
-              text: "About Us",
-              onTap: _navigateToAboutUs,
             ),
 
             _buildMenuItem(
