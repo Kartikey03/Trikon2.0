@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:trikon2/screens/contact_screen.dart';
+import 'package:trikon2/screens/faq_screen.dart';
 import 'package:trikon2/screens/signinup_screen.dart';
 import 'dart:io';
 import '../screens/intellia_member_screen.dart';
@@ -92,6 +93,14 @@ class _MyDrawerState extends State<MyDrawer> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ContactUsPage()),
+    );
+  }
+
+  void _navigateToFAQ() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => FAQScreen()),
     );
   }
 
@@ -219,6 +228,13 @@ class _MyDrawerState extends State<MyDrawer> {
               icon: Icons.support_agent_outlined,
               text: "Contact Us",
               onTap: _navigateToContactUs,
+            ),
+
+            _buildMenuItem(
+              context,
+              icon: Icons.help_outlined,
+              text: "FAQs",
+              onTap: _navigateToFAQ,
             ),
 
             Spacer(), // Push the logout button to the bottom

@@ -235,7 +235,7 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
   final DatabaseReference _database = FirebaseDatabase.instance.ref('users');
   UserProfile? _userProfile;
   String _qrData = "Loading user data...";
-  double _qrSize = 230.0;
+  final double _qrSize = 230.0;
   bool _isLoading = true;
   String _error = '';
 
