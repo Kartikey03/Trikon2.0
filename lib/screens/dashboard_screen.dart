@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:trikon2/widgets/problem_statement.dart';
 import 'dart:async';
 import '../widgets/event_timeline.dart';
 import 'dart:ui';
+import '../widgets/hackathon_hub.dart';
+import '../widgets/why_participate.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -347,8 +350,8 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                               child: _buildInfoCard(
                                 context,
                                 icon: Icons.emoji_events_rounded,
-                                title: 'Prizes',
-                                subtitle: '\₹11,000+',
+                                title: 'Prize Pool',
+                                subtitle: '\₹23500+',
                                 color: const Color(0xFF10B981),
                               ),
                             ),
@@ -586,6 +589,105 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
                   const SizedBox(height: 32),
 
+                  // Add the WhyParticipateCarousel
+                  const WhyParticipateCarousel(),
+
+                  const SizedBox(height: 32),
+
+                  // Cash Prizes Section
+                  _buildCashPrizeSection(context),
+
+                  const SizedBox(height: 32),
+
+                    // Hackathon Hub Navigation Button
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HackathonHubScreen()),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFF6C63FF),
+                            const Color(0xFF4F46E5),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF6C63FF).withOpacity(0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(
+                                        Icons.lightbulb_outline,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    const Text(
+                                      'Hackathon Hub',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                const Text(
+                                  'Explore the rounds, evaluation criteria, and journey through TRIKON 2.0',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
                   // Event Timeline Section with Modern Design
                   Container(
                     width: double.infinity,
@@ -638,7 +740,6 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
 
                   const SizedBox(height: 32),
 
-
                   // Sponsors with Enhanced Visual Appeal
                   const Text(
                     'Our Sponsors',
@@ -648,6 +749,7 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                       color: Color(0xFF1E293B),
                     ),
                   ),
+
                   const SizedBox(height: 16),
 
                   // Premium Sponsors Section
@@ -707,11 +809,9 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                     ),
                   ),
 
-
-
+                  const SizedBox(height: 20),
 
                   // NEW SECTION: Gold Sponsors
-                  const SizedBox(height: 20),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
@@ -765,19 +865,13 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                             ],
                           ),
                         ),
-                        // const SizedBox(height: 12),
-                        // const Text(
-                        //   'Providing amazing swag and gifts for all participants',
-                        //   style: TextStyle(
-                        //     fontSize: 14,
-                        //     color: Color(0xFF64748B),
-                        //     fontStyle: FontStyle.italic,
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
+                  // NEW SECTION: Silver Sponsors
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
@@ -798,13 +892,13 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                         Row(
                           children: [
                             const Icon(
-                              Icons.workspace_premium,
-                              color: Color(0xFFB45309), // Bronze color
+                              Icons.star,
+                              color: Color(0xFFBEBBBB),
                               size: 24,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Bronze Sponsors',
+                              'Silver Sponsors',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -819,31 +913,22 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                           physics: const BouncingScrollPhysics(),
                           child: Row(
                             children: const [
-                              // SponsorLogo(
-                              //   image: 'assets/images/sponsor_bronze.jpg',
-                              //   width: 160,
-                              // ),
-                              // SponsorLogo(
-                              //   image: 'assets/images/sponsor_bronze2.jpg',
-                              //   width: 160,
-                              // ),
+                              SponsorLogo(
+                                image: 'assets/images/sponsor_silver.png',
+                                width: 180,
+                              ),
                             ],
                           ),
                         ),
+
                         const SizedBox(height: 12),
-                        const Text(
-                          'Supporting the tech community',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF64748B),
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
                       ],
                     ),
                   ),
-                  // NEW SECTION: Swag Sponsors
+
                   const SizedBox(height: 20),
+
+                  // NEW SECTION: Swag Sponsors
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
@@ -894,7 +979,11 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
                                 width: 180,
                               ),                              // You can add more swag sponsors here in the future
                               SponsorLogo(
-                                image: 'assets/images/sponsor_swag2.jpg',
+                                image: 'assets/images/sponsor_swag2.png',
+                                width: 180,
+                              ),
+                              SponsorLogo(
+                                image: 'assets/images/sponsor_swag4.png',
                                 width: 180,
                               ),
                             ],
@@ -1021,6 +1110,224 @@ class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProv
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Then add this method to your _DashboardScreenState class
+Widget _buildCashPrizeSection(BuildContext context) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          const Color(0xFF6A1B9A),
+          const Color(0xFF9C27B0),
+        ],
+      ),
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0xFF9C27B0).withOpacity(0.3),
+          blurRadius: 15,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(
+              Icons.emoji_events_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Cash Prizes',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Tap on each card to reveal the exciting prizes awaiting our winners',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white70,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SimplePrizeWidget(
+              position: '1st',
+              prize: '₹ 11000',
+              color: const Color(0xFFFFD700), // Gold
+              icon: Icons.emoji_events,
+            ),
+            SimplePrizeWidget(
+              position: '2nd',
+              prize: '₹ 7500',
+              color: const Color(0xFFC0C0C0), // Silver
+              icon: Icons.military_tech,
+            ),
+            SimplePrizeWidget(
+              position: '3rd',
+              prize: '₹ 5000',
+              color: const Color(0xFFCD7F32), // Bronze
+              icon: Icons.workspace_premium,
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+      ],
+    ),
+  );
+}
+
+// Also add this new widget class to your dashboard_screen.dart file
+class SimplePrizeWidget extends StatefulWidget {
+  final String position;
+  final String prize;
+  final Color color;
+  final IconData icon;
+
+  const SimplePrizeWidget({
+    Key? key,
+    required this.position,
+    required this.prize,
+    required this.color,
+    required this.icon,
+  }) : super(key: key);
+
+  @override
+  State<SimplePrizeWidget> createState() => _SimplePrizeWidgetState();
+}
+
+class _SimplePrizeWidgetState extends State<SimplePrizeWidget>
+    with SingleTickerProviderStateMixin {
+  bool _isRevealed = false;
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOutBack,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggleReveal() {
+    setState(() {
+      _isRevealed = !_isRevealed;
+      if (_isRevealed) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _toggleReveal,
+      child: Container(
+        width: 90,
+        height: 120,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: widget.color.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: widget.color.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                widget.icon,
+                color: widget.color,
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.position,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: _isRevealed
+                  ? Text(
+                widget.prize,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: widget.color,
+                ),
+              )
+                  : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.touch_app,
+                    size: 12,
+                    color: Colors.black45,
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    'Tap',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.black45,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

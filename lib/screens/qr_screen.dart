@@ -83,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Login'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
@@ -177,26 +178,23 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class UserProfile {
-  final String id;
   final String name;
   final String email;
-  final String? phone;
+  final String? team;
   final String? role;
 
   UserProfile({
-    required this.id,
     required this.name,
     required this.email,
-    this.phone,
+    this.team,
     this.role,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
       'email': email,
-      if (phone != null) 'phone': phone,
+      if (team != null) 'team': team,
       if (role != null) 'role': role,
     };
   }
@@ -210,10 +208,9 @@ class UserProfile {
 
   factory UserProfile.fromMap(Map<dynamic, dynamic> map, String id) {
     return UserProfile(
-      id: id,
       name: map['name'] ?? 'Unknown',
       email: map['email'] ?? 'No email',
-      phone: map['phone'],
+      team: map['team'],
       role: map['role'],
     );
   }
@@ -223,9 +220,9 @@ class QRCodeGenerator extends StatefulWidget {
   final User user;
 
   const QRCodeGenerator({
-    Key? key,
+    super.key,
     required this.user,
-  }) : super(key: key);
+  });
 
   @override
   State<QRCodeGenerator> createState() => _QRCodeGeneratorState();
@@ -356,8 +353,8 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       Text(_userProfile!.email),
-                      if (_userProfile!.phone != null)
-                        Text('Phone: ${_userProfile!.phone}'),
+                      if (_userProfile!.team != null)
+                        Text('Team Name: ${_userProfile!.team}'),
                       if (_userProfile!.role != null)
                         Container(
                           margin: const EdgeInsets.only(top: 8),

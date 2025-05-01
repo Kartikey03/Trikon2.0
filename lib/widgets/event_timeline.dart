@@ -12,81 +12,61 @@ class EventTimeline extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildDayHeader(context, 'REGISTRATION - April 18, 2025'),
+            _buildDayEvents(context, [
+              Event(
+                time: 'April 18, 2025',
+                title: 'Registration Begins',
+                description: 'Submit your team application and prepare for an innovative journey.',
+                iconData: Icons.app_registration,
+              ),
+            ]),
+            const SizedBox(height: 16),
+            _buildDayHeader(context, 'TEAM SELECTION - April 30, 2025'),
+            _buildDayEvents(context, [
+              Event(
+                time: 'April 30, 2025',
+                title: 'Final Teams Announcement',
+                description: 'Selected teams will be notified and invited to participate.',
+                iconData: Icons.groups_rounded,
+              ),
+            ]),
+            const SizedBox(height: 16),
             _buildDayHeader(context, 'DAY 1 - May 3, 2025'),
             _buildDayEvents(context, [
               Event(
-                time: '9:00 AM',
-                title: 'Registration & Welcome Kit',
-                iconData: Icons.app_registration,
-              ),
-              Event(
-                time: '10:00 AM',
-                title: 'Opening Ceremony',
-                iconData: Icons.celebration,
-              ),
-              Event(
-                time: '11:00 AM',
-                title: 'Problem Statement Release',
-                iconData: Icons.lightbulb_outline,
-              ),
-              Event(
-                time: '12:00 PM',
-                title: 'Team Formation & Networking Lunch',
-                iconData: Icons.groups_rounded,
-              ),
-              Event(
-                time: '2:00 PM',
-                title: 'Hackathon Begins',
+                time: 'Morning',
+                title: 'Hackathon Kickoff',
+                description: 'Let the TRIKON 2025 Challenge begin!',
                 iconData: Icons.rocket_launch_rounded,
               ),
               Event(
-                time: '6:00 PM',
-                title: 'Mentorship Sessions',
-                iconData: Icons.person_outline,
+                time: 'Afternoon',
+                title: 'First Elimination Round',
+                description: 'First checkpoint evaluation.',
+                iconData: Icons.flag_outlined,
               ),
               Event(
-                time: '8:00 PM',
-                title: 'Dinner',
-                iconData: Icons.dinner_dining,
+                time: 'Evening',
+                title: 'Second Elimination Round',
+                description: 'Second checkpoint evaluation.',
+                iconData: Icons.flag,
               ),
             ]),
             const SizedBox(height: 16),
             _buildDayHeader(context, 'DAY 2 - May 4, 2025'),
             _buildDayEvents(context, [
               Event(
-                time: '8:00 AM',
-                title: 'Breakfast',
-                iconData: Icons.breakfast_dining,
-              ),
-              Event(
-                time: '10:00 AM',
-                title: 'First Checkpoint',
-                iconData: Icons.flag_outlined,
-              ),
-              Event(
-                time: '12:00 PM',
-                title: 'Lunch',
-                iconData: Icons.lunch_dining,
-              ),
-              Event(
-                time: '3:00 PM',
-                title: 'Second Checkpoint',
-                iconData: Icons.flag,
-              ),
-              Event(
-                time: '5:00 PM',
-                title: 'Final Submissions',
-                iconData: Icons.upload_file,
-              ),
-              Event(
-                time: '6:30 PM',
-                title: 'Project Presentations',
-                iconData: Icons.present_to_all,
-              ),
-              Event(
-                time: '8:00 PM',
-                title: 'Winners Announcement & Closing Ceremony',
+                time: 'Afternoon',
+                title: 'Winners Announcement & Prize Distribution',
+                description: 'Celebrate the triumphant champions and their innovative solutions.',
                 iconData: Icons.emoji_events,
+              ),
+              Event(
+                time: 'Evening',
+                title: 'Hackathon Conclusion & Closing Ceremony',
+                description: 'Celebrate achievements and bid farewell to an incredible journey.',
+                iconData: Icons.celebration,
               ),
             ]),
           ],
@@ -174,6 +154,14 @@ class EventTimeline extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  event.description,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
           ),
@@ -186,11 +174,13 @@ class EventTimeline extends StatelessWidget {
 class Event {
   final String time;
   final String title;
+  final String description;
   final IconData iconData;
 
   Event({
     required this.time,
     required this.title,
+    required this.description,
     required this.iconData,
   });
 }

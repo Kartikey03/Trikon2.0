@@ -227,15 +227,15 @@ class _IntegratedM2MScreenState extends State<IntegratedM2MScreen> {
       case 'general':
         return Colors.grey.shade100;
       case 'development':
-        return const Color(0xFF8EB98E); // Light yellow
+        return const Color(0xFFD5FFD5); // Light yellow
       case 'meal':
-        return const Color(0xFFD2CE98); // Light red/pink
+        return const Color(0xFFFFFCDB); // Light red/pink
       case 'interactive':
-        return const Color(0xFF8CB5CC); // Light blue
+        return const Color(0xFFC6E6F6); // Light blue
       case 'elimination':
-        return const Color(0xFFBB8888); // Light green
+        return const Color(0xFFFCD6D6); // Light green
       case 'presentation':
-        return const Color(0xFFC299DC); // Light purple
+        return const Color(0xFFE0BCF1); // Light purple
       default:
         return Colors.white;
     }

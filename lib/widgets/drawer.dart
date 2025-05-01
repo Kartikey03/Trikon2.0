@@ -4,10 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:trikon2/screens/contact_screen.dart';
 import 'package:trikon2/screens/faq_screen.dart';
+import 'package:trikon2/screens/mentor_screen.dart';
 import 'package:trikon2/screens/signinup_screen.dart';
 import 'dart:io';
 import '../screens/intellia_member_screen.dart';
 import '../screens/feedback_screen.dart';
+import '../screens/jury_screen.dart';
 
 class MyDrawer extends StatefulWidget {
   @override
@@ -77,6 +79,22 @@ class _MyDrawerState extends State<MyDrawer> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => SocietyMembersScreen()),
+    );
+  }
+
+  void _navigateToMentors() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MentorsScreen()),
+    );
+  }
+
+  void _navigateToJury() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => JuryScreen()),
     );
   }
 
@@ -214,6 +232,20 @@ class _MyDrawerState extends State<MyDrawer> {
               icon: Icons.groups_outlined,
               text: "Society Members",
               onTap: _navigateToSocietyMembers,
+            ),
+
+            _buildMenuItem(
+              context,
+              icon: Icons.person_outlined,
+              text: "Meet Mentors",
+              onTap: _navigateToMentors,
+            ),
+
+            _buildMenuItem(
+              context,
+              icon: Icons.person_pin_rounded,
+              text: "Meet Jury",
+              onTap: _navigateToJury,
             ),
 
             _buildMenuItem(

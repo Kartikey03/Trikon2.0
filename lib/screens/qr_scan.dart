@@ -1,7 +1,13 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:convert';
 
@@ -177,17 +183,238 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
 // Admin dashboard to view stats and manage participants
 class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({Key? key}) : super(key: key);
+  const AdminDashboard({super.key});
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
+
+  // Add this method to the _AdminDashboardState class to handle storage permissions
+  Future<bool> _requestStoragePermission() async {
+    var status = await Permission.storage.status;
+
+    // If permission is already granted, return true
+    if (status.isGranted) {
+      return true;
+    }
+
+    // If permission was previously denied but can be requested, show dialog first
+    if (status.isDenied) {
+      // Show explanation dialog
+      bool shouldRequest = await showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Storage Permission Required'),
+          content: const Text(
+              'To export participant data as a CSV file, this app needs permission to access device storage. '
+                  'Please grant storage permission on the next screen.'
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Continue'),
+            ),
+          ],
+        ),
+      ) ?? false;
+
+      if (!shouldRequest) {
+        return false;
+      }
+
+      // Request permission
+      status = await Permission.storage.request();
+      return status.isGranted;
+    }
+
+    // If permission is permanently denied, direct user to settings
+    if (status.isPermanentlyDenied) {
+      bool openSettings = await showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Storage Permission Required'),
+          content: const Text(
+              'Storage permission is required to export participant data. '
+                  'Please enable it in the app settings.'
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Open Settings'),
+            ),
+          ],
+        ),
+      ) ?? false;
+
+      if (openSettings) {
+        await openAppSettings();
+        // Re-check permission after returning from settings
+        return await Permission.storage.status.isGranted;
+      }
+      return false;
+    }
+
+    return false;
+  }
+
+// Add this method to check Android version and request appropriate permissions
+  Future<bool> _checkAndRequestStoragePermissions() async {
+    // First try regular storage permissions
+    bool hasRegularPermission = await _requestStoragePermission();
+    if (hasRegularPermission) {
+      return true;
+    }
+
+    // If that fails, guide the user to settings
+    bool shouldRequestManageStorage = await showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Additional Permission Required'),
+        content: const Text(
+            'Exporting files requires additional permissions. '
+                'Please enable file access for this app in the next screen.'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    ) ?? false;
+
+    if (shouldRequestManageStorage) {
+      await openAppSettings();
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<void> _exportToCsv() async {
+    try {
+      // Check if all required storage permissions are granted
+      bool hasPermission = await _checkAndRequestStoragePermissions();
+      if (!hasPermission) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Storage permission is required to export CSV')),
+        );
+        return;
+      }
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Create CSV header - Updated to include new meal types
+      String csvData = 'Name,Email,Phone,Department,Year,Check In,Breakfast,Breakfast2,Lunch,Dinner\n';
+
+      // Add participant data - Updated to include new meal types
+      for (var participant in _participants) {
+        csvData += '${_escapeCsvField(participant['name'])},';
+        csvData += '${_escapeCsvField(participant['email'])},';
+        csvData += '${_escapeCsvField(participant['phone'])},';
+        csvData += '${_escapeCsvField(participant['department'])},';
+        csvData += '${_escapeCsvField(participant['year'])},';
+        csvData += '${participant['check_in'] ? 'Yes' : 'No'},';
+        csvData += '${participant['breakfast'] ? 'Yes' : 'No'},';
+        csvData += '${participant['breakfast2'] ? 'Yes' : 'No'},';
+        csvData += '${participant['lunch'] ? 'Yes' : 'No'},';
+        csvData += '${participant['dinner'] ? 'Yes' : 'No'}\n';
+      }
+
+      // Try saving to Downloads folder first (preferred location)
+      Directory? directory;
+      try {
+        // Get downloads directory (works on Android)
+        directory = Directory('/storage/emulated/0/Download');
+        if (!await directory.exists()) {
+          // Fallback to app documents directory
+          directory = await getApplicationDocumentsDirectory();
+        }
+      } catch (e) {
+        // Fallback to app documents directory
+        directory = await getApplicationDocumentsDirectory();
+      }
+
+      final now = DateTime.now();
+      final formatter = DateFormat('yyyyMMdd_HHmmss');
+      final String fileName = 'participants_${formatter.format(now)}.csv';
+      final File file = File('${directory.path}/$fileName');
+
+      // Write to file
+      await file.writeAsString(csvData);
+
+      // Show success dialog with file location
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('CSV Export Successful'),
+          content: Text('File saved to:\n${file.path}\n\nWould you like to share this file?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Share.shareXFiles(
+                  [XFile(file.path)],
+                  text: 'Hackathon Participants Data',
+                );
+              },
+              child: const Text('Share'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error exporting CSV: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+// Helper method to properly escape CSV fields
+  String _escapeCsvField(dynamic value) {
+    if (value == null) return '';
+    String stringValue = value.toString();
+    // If the field contains commas, quotes, or newlines, enclose it in quotes
+    if (stringValue.contains(',') || stringValue.contains('"') || stringValue.contains('\n')) {
+      // Double up any quotes
+      stringValue = stringValue.replaceAll('"', '""');
+      // Enclose in quotes
+      return '"$stringValue"';
+    }
+    return stringValue;
+  }
+
+
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   Map<String, dynamic> _stats = {
     'totalParticipants': 0,
+    'checkInCount': 0,     // Added for check_in
     'breakfastServed': 0,
+    'breakfast2Served': 0, // Added for breakfast2
     'lunchServed': 0,
     'dinnerServed': 0,
   };
@@ -211,7 +438,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
       if (usersSnapshot.exists) {
         final users = usersSnapshot.value as Map<dynamic, dynamic>;
         _participants = [];
+        int checkInCount = 0;       // Added for check_in
         int breakfastCount = 0;
+        int breakfast2Count = 0;    // Added for breakfast2
         int lunchCount = 0;
         int dinnerCount = 0;
 
@@ -223,14 +452,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
             'phone': userData['phone'] ?? 'Unknown',
             'year': userData['year'] ?? 'Unknown',
             'department': userData['department'] ?? 'Unknown',
+            'check_in': userData['check_in'] ?? false,     // Added for check_in
             'breakfast': userData['breakfast'] ?? false,
+            'breakfast2': userData['breakfast2'] ?? false, // Added for breakfast2
             'lunch': userData['lunch'] ?? false,
             'dinner': userData['dinner'] ?? false,
           };
 
           _participants.add(participant);
 
+          if (participant['check_in']) checkInCount++;       // Added for check_in
           if (participant['breakfast']) breakfastCount++;
+          if (participant['breakfast2']) breakfast2Count++;  // Added for breakfast2
           if (participant['lunch']) lunchCount++;
           if (participant['dinner']) dinnerCount++;
         });
@@ -238,7 +471,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
         setState(() {
           _stats = {
             'totalParticipants': _participants.length,
+            'checkInCount': checkInCount,               // Added for check_in
             'breakfastServed': breakfastCount,
+            'breakfast2Served': breakfast2Count,        // Added for breakfast2
             'lunchServed': lunchCount,
             'dinnerServed': dinnerCount,
           };
@@ -302,10 +537,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             Colors.blue,
                           ),
                           _buildStatCard(
+                            'Check In',
+                            '${_stats['checkInCount']}/${_stats['totalParticipants']}',
+                            Icons.app_registration,
+                            Colors.teal,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildStatCard(
                             'Breakfast',
                             '${_stats['breakfastServed']}/${_stats['totalParticipants']}',
                             Icons.free_breakfast,
                             Colors.orange,
+                          ),
+                          _buildStatCard(
+                            'Breakfast 2',
+                            '${_stats['breakfast2Served']}/${_stats['totalParticipants']}',
+                            Icons.coffee,
+                            Colors.brown,
                           ),
                         ],
                       ),
@@ -354,11 +607,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           ElevatedButton.icon(
                             icon: const Icon(Icons.download),
                             label: const Text('Export CSV'),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Export feature to be implemented')),
-                              );
-                            },
+                            onPressed: _exportToCsv,
                           ),
                         ],
                       ),
@@ -370,7 +619,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             DataColumn(label: Text('Name')),
                             DataColumn(label: Text('Department')),
                             DataColumn(label: Text('Year')),
+                            DataColumn(label: Text('Check In')),
                             DataColumn(label: Text('Breakfast')),
+                            DataColumn(label: Text('Breakfast 2')),
                             DataColumn(label: Text('Lunch')),
                             DataColumn(label: Text('Dinner')),
                           ],
@@ -380,7 +631,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 DataCell(Text(participant['name'])),
                                 DataCell(Text(participant['department'])),
                                 DataCell(Text(participant['year'])),
+                                DataCell(_buildStatusIcon(participant['check_in'])),
                                 DataCell(_buildStatusIcon(participant['breakfast'])),
+                                DataCell(_buildStatusIcon(participant['breakfast2'])),
                                 DataCell(_buildStatusIcon(participant['lunch'])),
                                 DataCell(_buildStatusIcon(participant['dinner'])),
                               ],
@@ -544,7 +797,7 @@ class _QrScanState extends State<QrScan> {
   bool isLoading = false;
   bool isSuccess = false;
   bool isError = false;
-  String mealType = 'breakfast'; // Default meal type
+  String mealType = 'check_in'; // Default changed to check_in
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
 
   @override
@@ -582,25 +835,54 @@ class _QrScanState extends State<QrScan> {
       // Parse the JSON data from QR code
       final Map<String, dynamic> qrJson = json.decode(qrData);
 
-      if (!qrJson.containsKey('id')) {
-        throw Exception('Invalid QR code format. Missing ID field.');
+      // Check if the QR code contains an email field
+      if (!qrJson.containsKey('email')) {
+        throw Exception('Invalid QR code format. Missing email field.');
       }
 
-      final String participantId = qrJson['id'];
+      final String participantEmail = qrJson['email'];
 
-      // Query the database for this participant
-      final participantSnapshot = await _database.child('users').child(participantId).get();
+      // We need to query all users and find the one with matching email
+      final usersSnapshot = await _database.child('users').get();
 
-      if (!participantSnapshot.exists) {
-        throw Exception('Participant not found in database');
+      if (!usersSnapshot.exists) {
+        throw Exception('No users found in database');
       }
 
-      final participant = participantSnapshot.value as Map<dynamic, dynamic>;
+      // Convert all users to a map
+      final usersData = usersSnapshot.value as Map<dynamic, dynamic>;
+
+      // Variables to store matched participant details
+      String? participantId;
+      Map<dynamic, dynamic>? participant;
+
+      // Find the user with matching email
+      usersData.forEach((key, value) {
+        if (value is Map && value.containsKey('email') && value['email'] == participantEmail) {
+          participantId = key;
+          participant = value;
+        }
+      });
+
+      // Check if a matching participant was found
+      if (participantId == null || participant == null) {
+        throw Exception('No participant found with email: $participantEmail');
+      }
 
       // Check if the meal has already been served
-      if (participant[mealType] == true) {
+      if (participant![mealType] == true) {
         setState(() {
-          scanStatus = 'This ${mealType.capitalize()} has already been served to ${participant['name']}';
+          // Format the message based on meal type
+          String mealTypeName = mealType;
+          if (mealType == 'check_in') {
+            mealTypeName = 'Check In';
+          } else if (mealType == 'breakfast2') {
+            mealTypeName = 'Breakfast 2';
+          } else {
+            mealTypeName = mealType.capitalize();
+          }
+
+          scanStatus = 'This $mealTypeName has already been recorded for ${participant!['name']}';
           isLoading = false;
           isError = true;
         });
@@ -608,12 +890,22 @@ class _QrScanState extends State<QrScan> {
       }
 
       // Update the meal status in Firebase
-      await _database.child('users').child(participantId).update({
+      await _database.child('users').child(participantId!).update({
         mealType: true,
       });
 
       setState(() {
-        scanStatus = 'Success! ${mealType.capitalize()} marked for ${participant['name']}';
+        // Format the message based on meal type
+        String mealTypeName = mealType;
+        if (mealType == 'check_in') {
+          mealTypeName = 'Check In';
+        } else if (mealType == 'breakfast2') {
+          mealTypeName = 'Breakfast 2';
+        } else {
+          mealTypeName = mealType.capitalize();
+        }
+
+        scanStatus = 'Success! $mealTypeName marked for ${participant!['name']}';
         isLoading = false;
         isSuccess = true;
       });
@@ -637,197 +929,131 @@ class _QrScanState extends State<QrScan> {
       ),
       body: Column(
         children: [
-          // Meal type selector
+          // Meal type selector - Updated to include new meal types
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                const Text('Select meal: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Select type: ', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(width: 16),
                 DropdownButton<String>(
                   value: mealType,
-                  items: ['breakfast', 'lunch', 'dinner'].map((String value) {
+                  items: ['check_in', 'breakfast', 'breakfast2', 'lunch', 'dinner'].map((String value) {
+                    String displayName = value;
+                    if (value == 'check_in') {
+                      displayName = 'Check In';
+                    } else if (value == 'breakfast2') {
+                      displayName = 'Breakfast 2';
+                    } else {
+                      displayName = value.capitalize();
+                    }
+
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value.capitalize()),
+                      child: Text(displayName),
                     );
                   }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      mealType = newValue!;
-                    });
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        mealType = newValue;
+                      });
+                    }
                   },
                 ),
               ],
+            ),
+          ),
+
+          // QR scanner view
+          Expanded(
+            child: hasPermission
+                ? Stack(
+              alignment: Alignment.center,
+              children: [
+                // QR scanner
+                MobileScanner(
+                  onDetect: (capture) {
+                    final barcodes = capture.barcodes;
+
+                    // Only process if we're not already loading
+                    if (barcodes.isNotEmpty && !isLoading) {
+                      final qrData = barcodes.first.rawValue;
+                      if (qrData != null && qrData.isNotEmpty) {
+                        _processQrData(qrData);
+                      }
+                    }
+                  },
+                ),
+
+                // Scanner overlay
+                CustomPaint(
+                  painter: ScannerOverlay(
+                    300.0,
+                    Theme.of(context).primaryColor,
+                  ),
+                  child: Container(),
+                ),
+              ],
+            )
+                : const Center(
+              child: Text(
+                'Camera permission not granted',
+                style: TextStyle(fontSize: 18, color: Colors.red),
+              ),
             ),
           ),
 
           // Status display
           Container(
-            padding: const EdgeInsets.all(16),
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: isSuccess
-                  ? Colors.green.withOpacity(0.1)
-                  : isError
-                  ? Colors.red.withOpacity(0.1)
-                  : Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isSuccess
-                    ? Colors.green
-                    : isError
-                    ? Colors.red
-                    : Colors.grey,
-              ),
-            ),
-            child: Row(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16.0),
+            color: isSuccess
+                ? Colors.green.shade100
+                : isError
+                ? Colors.red.shade100
+                : Colors.grey.shade200,
+            child: Column(
               children: [
                 isLoading
-                    ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                    : isSuccess
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : isError
-                    ? const Icon(Icons.error, color: Colors.red)
-                    : const Icon(Icons.info, color: Colors.grey),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    scanStatus,
-                    style: TextStyle(
-                      color: isSuccess
-                          ? Colors.green
-                          : isError
-                          ? Colors.red
-                          : Colors.black,
-                    ),
+                    ? const CircularProgressIndicator()
+                    : Icon(
+                  isSuccess
+                      ? Icons.check_circle
+                      : isError
+                      ? Icons.error
+                      : Icons.qr_code_scanner,
+                  size: 36,
+                  color: isSuccess
+                      ? Colors.green
+                      : isError
+                      ? Colors.red
+                      : Colors.grey,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  scanStatus,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isSuccess
+                        ? Colors.green.shade800
+                        : isError
+                        ? Colors.red.shade800
+                        : Colors.black87,
                   ),
                 ),
               ],
-            ),
-          ),
-
-          // Scanner view
-          Expanded(
-            child: hasPermission
-                ? Stack(
-              children: [
-                MobileScanner(
-                  controller: MobileScannerController(),
-                  onDetect: (BarcodeCapture capture) {
-                    final List<Barcode> barcodes = capture.barcodes;
-                    if (barcodes.isNotEmpty && !isLoading) {
-                      final String? code = barcodes.first.rawValue;
-                      if (code != null) {
-                        _processQrData(code);
-                      }
-                    }
-                  },
-                  errorBuilder: (context, error, child) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error_outline, size: 60, color: Colors.red),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Scanner Error',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(error.errorDetails?.message ?? 'Unknown error occurred'),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => const QrScan()),
-                              );
-                            },
-                            child: const Text('Try Again'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                CustomPaint(
-                  painter: ScannerOverlay(
-                    MediaQuery.of(context).size.width * 0.8,
-                    Theme.of(context).primaryColor,
-                  ),
-                  child: const SizedBox.expand(),
-                ),
-                Positioned(
-                  bottom: 20,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        child: const Text(
-                          'Position the QR code in the frame',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            )
-                : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.camera_alt_sharp, size: 80, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  const Text('Camera permission required'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _requestCameraPermission,
-                    child: const Text('Grant Permission'),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-          onPressed: isSuccess || isError
-              ? () {
-            setState(() {
-              scanStatus = 'Ready to scan';
-              isSuccess = false;
-              isError = false;
-            });
-          }
-              : null,
-          child: const Text('Scan Next'),
-        ),
       ),
     );
   }
 }
 
-// Extension to capitalize first letter of string
+// Extension to capitalize first letter of a string
 extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${substring(1)}";

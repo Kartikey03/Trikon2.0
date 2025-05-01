@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trikon2/screens/qr_scan.dart';
+import '../widgets/team_dropdown.dart';
 import 'admin_screen.dart';
 import 'homescreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,14 +30,18 @@ class _AuthPageState extends State<AuthPage> {
   final String _adminEmail = "intelliasociety@gmail.com";
   final String _adminPassword = "wow123";
 
+  final String _guestEmail = "trikon@intellia.com";
+  final String _guestPassword = "info@trikon";
+
   // List of years, departments and branches for dropdowns
   final List<String> _years = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
-  final List<String> _departments = ['CSE', 'ECE', 'EE', 'Bio Tech', 'B Pharma','MBA'];
+  final List<String> _departments = ['CSE', 'ECE', 'EE', 'Bio Tech', 'B Pharma', 'MBA', 'Other'];
   final List<String> _branches = ['Core', 'AIML', 'AI', 'CSIT', 'DS', 'CS', 'Other'];
 
   String? _selectedYear;
   String? _selectedDepartment;
   String? _selectedBranch;
+  String? _selectedTeam;  // Add this to track selected team
 
   // Firebase Realtime Database reference
   final DatabaseReference _databaseRef = FirebaseDatabase.instance.ref();
@@ -56,7 +61,7 @@ class _AuthPageState extends State<AuthPage> {
 
       if (currentUser != null) {
         // Check if the user's email is verified
-        if (currentUser.emailVerified || currentUser.email == _adminEmail) {
+        if (currentUser.emailVerified || currentUser.email == _adminEmail || currentUser.email == _guestEmail) {
           // Check if the signed-in user is an admin
           if (currentUser.email == _adminEmail) {
             // Route to admin page
@@ -67,7 +72,18 @@ class _AuthPageState extends State<AuthPage> {
                     (route) => false,
               );
             });
-          } else {
+          }
+          if (currentUser.email == _guestEmail) {
+            // Route to admin page
+            Future.delayed(Duration.zero, () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    (route) => false,
+              );
+            });
+          }
+          else {
             // Route to regular user page
             Future.delayed(Duration.zero, () {
               Navigator.pushAndRemoveUntil(
@@ -201,7 +217,7 @@ class _AuthPageState extends State<AuthPage> {
 
   // Write user data to Realtime Database
   Future<void> _writeUserData(String uid, String name, String email, String phone,
-      String year, String department, String branch, bool breakfast, bool lunch, bool dinner) async {
+      String year, String department, String branch, String? team, bool breakfast, bool lunch, bool dinner) async {
     try {
       await _databaseRef.child("users").child(uid).set({
         'name': name,
@@ -210,6 +226,7 @@ class _AuthPageState extends State<AuthPage> {
         'year': year,
         'department': department,
         'branch': branch,
+        'team': team ?? "",
         'breakfast': false,
         'lunch': false,
         'dinner': false,
@@ -374,6 +391,7 @@ class _AuthPageState extends State<AuthPage> {
         _selectedYear = null;
         _selectedDepartment = null;
         _selectedBranch = null;
+        _selectedTeam = null;
       }
     });
   }
@@ -417,19 +435,13 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                     child: ClipOval(
                       child: Image.asset(
-                        'assets/images/intellia_logo.png',
+                        'assets/images/trikon_logo.jpg',
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                 ),
 
-                // // Logo
-                // Icon(
-                //   Icons.school_rounded,
-                //   size: 80,
-                //   color: Colors.tealAccent.shade700,
-                // ),
                 const SizedBox(height: 24),
 
                 // Title
@@ -508,7 +520,7 @@ class _AuthPageState extends State<AuthPage> {
                               TextFormField(
                                 controller: _phoneController,
                                 decoration: InputDecoration(
-                                  hintText: 'Phone Number',
+                                  hintText: 'Mobile Number',
                                   prefixIcon: const Icon(Icons.phone_outlined),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -519,12 +531,33 @@ class _AuthPageState extends State<AuthPage> {
                                 keyboardType: TextInputType.phone,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Please enter your phone number';
+                                    return 'Please enter your Mobile number';
                                   }
                                   // Simple phone validation
                                   if (!RegExp(r'^\d{10}$').hasMatch(value) &&
                                       !RegExp(r'^\+\d{1,3}\d{10}$').hasMatch(value)) {
                                     return 'Please enter a valid phone number';
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              SearchableDropdown(
+                                hintText: 'Select Your '
+                                    'Team',
+                                prefixIcon: const Icon(Icons.group),
+                                value: _selectedTeam,
+                                isLoading: _isLoading,
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _selectedTeam = newValue;
+                                  });
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please select your team';
                                   }
                                   return null;
                                 },
@@ -803,7 +836,26 @@ class _AuthPageState extends State<AuthPage> {
                                         MaterialPageRoute(builder: (context) => const AdminScreen()),
                                       );
                                     }
-                                  } else {
+                                  }
+                                  else if (email == _guestEmail && password == _guestPassword) {
+                                    // For admin login, we can either:
+                                    // Option 1: Sign in with Firebase (if admin account exists)
+                                    await FirebaseAuth.instance
+                                        .signInWithEmailAndPassword(email: email, password: password);
+
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Guest signed in successfully')),
+                                      );
+
+                                      // Navigate to Admin page
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                                      );
+                                    }
+                                  }
+                                  else {
                                     // Regular user login
                                     UserCredential userCredential = await FirebaseAuth.instance
                                         .signInWithEmailAndPassword(email: email, password: password);
@@ -836,6 +888,7 @@ class _AuthPageState extends State<AuthPage> {
                                   final year = _selectedYear ?? "";
                                   final department = _selectedDepartment ?? "";
                                   final branch = _selectedBranch ?? "";
+                                  final team = _selectedTeam ?? "";  // Fixed to use _selectedTeam instead of _selectedYear
                                   final breakfast = false;
                                   final lunch = false;
                                   final dinner = false;
@@ -859,6 +912,7 @@ class _AuthPageState extends State<AuthPage> {
                                     year,
                                     department,
                                     branch,
+                                    team,
                                     breakfast,
                                     lunch,
                                     dinner,

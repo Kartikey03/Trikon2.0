@@ -77,163 +77,195 @@ class _ProblemStatementWidgetState extends State<ProblemStatementWidget> with Si
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabChange);
     _startAutoScroll();
   }
 
-  void _startAutoScroll() {
-    _softwareTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (_softwareController.page != null && _currentSoftwareIndex < _softwareCategories.length - 1) {
-        _softwareController.nextPage(
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      } else {
-        _softwareController.animateToPage(
-          0,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
+  void _handleTabChange() {
+    // Reset timers when tab changes to avoid scroll conflicts
+    if (_tabController.indexIsChanging) {
+      _resetTimers();
+      _startAutoScroll();
+    }
+  }
 
-    // Offset hardware carousel timing slightly for visual interest
-    _hardwareTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
-      if (_hardwareController.page != null && _currentHardwareIndex < _hardwareCategories.length - 1) {
-        _hardwareController.nextPage(
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      } else {
-        _hardwareController.animateToPage(
-          0,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
+  void _startAutoScroll() {
+    // Only start timers for the active tab
+    if (_tabController.index == 0) {
+      _softwareTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+        if (_currentSoftwareIndex < _softwareCategories.length - 1) {
+          _softwareController.animateToPage(
+            _currentSoftwareIndex + 1,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          _softwareController.animateToPage(
+            0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    } else {
+      _hardwareTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
+        if (_currentHardwareIndex < _hardwareCategories.length - 1) {
+          _hardwareController.animateToPage(
+            _currentHardwareIndex + 1,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        } else {
+          _hardwareController.animateToPage(
+            0,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+  }
+
+  void _resetTimers() {
+    _softwareTimer?.cancel();
+    _hardwareTimer?.cancel();
+    _softwareTimer = null;
+    _hardwareTimer = null;
   }
 
   @override
   void dispose() {
-    _softwareTimer?.cancel();
-    _hardwareTimer?.cancel();
+    _resetTimers();
     _softwareController.dispose();
     _hardwareController.dispose();
+    _tabController.removeListener(_handleTabChange);
     _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
       ),
-      // Set a fixed height for the container to avoid layout issues
-      height: 600,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with icon and title
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.lightbulb_outline,
-                  color: Color(0xFF10B981),
-                  size: 22,
-                ),
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header with icon and title
+                  _buildHeader(),
+                  const SizedBox(height: 20),
+
+                  // Tab Controller for Software and Hardware
+                  _buildTabBar(),
+                  const SizedBox(height: 20),
+
+                  // Tab content - Software & Hardware with flexible sizing
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: TabBarView(
+                      controller: _tabController,
+                      physics: const NeverScrollableScrollPhysics(), // Prevents swipe to change tab
+                      children: [
+                        // Software Tab Content
+                        _buildSoftwareContent(constraints),
+
+                        // Hardware Tab Content
+                        _buildHardwareContent(constraints),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFECFDF5),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(width: 12),
-              const Text(
-                'Problem Statements',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
+              child: const Icon(
+                Icons.lightbulb_outline,
+                color: Color(0xFF10B981),
+                size: 22,
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Explore these innovative challenges and pick what interests you most.',
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xFF475569),
             ),
-          ),
-          const SizedBox(height: 20),
-
-          // Tab Controller for Software and Hardware
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: const Color(0xFF3B82F6),
+            const SizedBox(width: 12),
+            const Text(
+              'Problem Statements',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1E293B),
               ),
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.grey.shade700,
-              tabs: const [
-                Tab(
-                  icon: Icon(Icons.code),
-                  text: 'Software',
-                ),
-                Tab(
-                  icon: Icon(Icons.devices),
-                  text: 'Hardware',
-                ),
-              ],
             ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Explore these innovative challenges and pick what interests you most.',
+          style: TextStyle(
+            fontSize: 16,
+            color: Color(0xFF475569),
           ),
+        ),
+      ],
+    );
+  }
 
-          const SizedBox(height: 20),
-
-          // Tab content - Software & Hardware with explicit height
-          SizedBox(
-            height: 380, // Explicit height to prevent flex issues
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // Software Tab Content
-                _buildSoftwareContent(),
-
-                // Hardware Tab Content
-                _buildHardwareContent(),
-              ],
-            ),
+  Widget _buildTabBar() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: TabBar(
+        controller: _tabController,
+        indicator: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: const Color(0xFF3B82F6),
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey.shade700,
+        tabs: const [
+          Tab(
+            icon: Icon(Icons.code),
+            text: 'Software',
+          ),
+          Tab(
+            icon: Icon(Icons.devices),
+            text: 'Hardware',
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSoftwareContent() {
+  Widget _buildSoftwareContent(BoxConstraints constraints) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Fixed height for PageView to prevent layout issues
+        // PageView with constraints-based height
         SizedBox(
-          height: 330,
+          height: constraints.maxHeight - 150, // Adjust based on other elements
           child: PageView.builder(
             controller: _softwareController,
             onPageChanged: (int page) {
@@ -249,20 +281,22 @@ class _ProblemStatementWidgetState extends State<ProblemStatementWidget> with Si
         ),
         const SizedBox(height: 12),
         // Page indicators
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            _softwareCategories.length,
-                (index) => AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 4.0),
-              width: _currentSoftwareIndex == index ? 24.0 : 8.0,
-              height: 8.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: _currentSoftwareIndex == index
-                    ? const Color(0xFF3B82F6)
-                    : Colors.grey.shade300,
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(
+              _softwareCategories.length,
+                  (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                width: _currentSoftwareIndex == index ? 24.0 : 8.0,
+                height: 8.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: _currentSoftwareIndex == index
+                      ? const Color(0xFF3B82F6)
+                      : Colors.grey.shade300,
+                ),
               ),
             ),
           ),
@@ -271,13 +305,13 @@ class _ProblemStatementWidgetState extends State<ProblemStatementWidget> with Si
     );
   }
 
-  Widget _buildHardwareContent() {
+  Widget _buildHardwareContent(BoxConstraints constraints) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Fixed height for PageView to prevent layout issues
+        // PageView with constraints-based height
         SizedBox(
-          height: 330,
+          height: constraints.maxHeight - 150, // Adjust based on other elements
           child: PageView.builder(
             controller: _hardwareController,
             onPageChanged: (int page) {
@@ -293,20 +327,22 @@ class _ProblemStatementWidgetState extends State<ProblemStatementWidget> with Si
         ),
         const SizedBox(height: 12),
         // Page indicators
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            _hardwareCategories.length,
-                (index) => AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 4.0),
-              width: _currentHardwareIndex == index ? 24.0 : 8.0,
-              height: 8.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: _currentHardwareIndex == index
-                    ? const Color(0xFF3B82F6)
-                    : Colors.grey.shade300,
+        Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(
+              _hardwareCategories.length,
+                  (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                width: _currentHardwareIndex == index ? 24.0 : 8.0,
+                height: 8.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: _currentHardwareIndex == index
+                      ? const Color(0xFF3B82F6)
+                      : Colors.grey.shade300,
+                ),
               ),
             ),
           ),
@@ -317,7 +353,7 @@ class _ProblemStatementWidgetState extends State<ProblemStatementWidget> with Si
 
   Widget _buildCategoryCard(ProblemCategory category) {
     return Card(
-      elevation: 5,
+      elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -381,65 +417,65 @@ class _ProblemStatementWidgetState extends State<ProblemStatementWidget> with Si
             ),
           ),
 
-          // Problem list with fixed height instead of Expanded
-          Container(
-            padding: const EdgeInsets.all(20),
-            width: double.infinity,
-            height: 210, // Fixed height to prevent layout issues
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Challenge Areas',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: category.color,
+          // Problem list with proper constraints
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Challenge Areas',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: category.color,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                // Fixed height for ListView
-                SizedBox(
-                  height: 160,
-                  child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: category.problems.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: category.color.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.arrow_right,
-                                color: category.color,
-                                size: 18,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                category.problems[index],
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  color: Color(0xFF334155),
-                                  height: 1.3,
+                  const SizedBox(height: 12),
+                  // Use Expanded for ListView
+                  Expanded(
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: category.problems.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: category.color.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.arrow_right,
+                                  color: category.color,
+                                  size: 18,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  category.problems[index],
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Color(0xFF334155),
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
