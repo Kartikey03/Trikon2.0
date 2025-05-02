@@ -294,6 +294,7 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Your QR Code'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,

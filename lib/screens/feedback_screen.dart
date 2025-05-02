@@ -17,11 +17,16 @@ class _FeedbackFormState extends State<FeedbackForm> {
   final _auth = FirebaseAuth.instance;
 
   // Rating values
-  double _overallRating = 0;
-  double _mentorsRating = 0;
-  double _juryRating = 0;
+  double _accomodationRating = 0;
+  double _swagsRating = 0;
+  double _commEmailRating = 0;
+  double _venueRating = 0;
   double _foodRating = 0;
-  double _roundsRating = 0;
+  double _activitiesRating = 0;
+  double _mentorRating = 0;
+  double _teamRating = 0;
+  double _speakersRating = 0;
+  double _closingRating = 0;
 
   // Text controllers
   final _roundsFeedbackController = TextEditingController();
@@ -69,11 +74,16 @@ class _FeedbackFormState extends State<FeedbackForm> {
       Map<dynamic, dynamic> comments = (feedbackData['comments'] as Map);
 
       setState(() {
-        _overallRating = ratings['overall'] ?? 0;
-        _mentorsRating = ratings['mentors'] ?? 0;
-        _juryRating = ratings['jury'] ?? 0;
+        _accomodationRating = ratings['accomodation'] ?? 0;
+        _swagsRating = ratings['swags'] ?? 0;
+        _commEmailRating = ratings['commEmail'] ?? 0;
+        _venueRating = ratings['venue'] ?? 0;
         _foodRating = ratings['food'] ?? 0;
-        _roundsRating = ratings['rounds'] ?? 0;
+        _activitiesRating = ratings['activities'] ?? 0;
+        _mentorRating = ratings['mentor'] ?? 0;
+        _teamRating = ratings['team'] ?? 0;
+        _speakersRating = ratings['speakers'] ?? 0;
+        _closingRating = ratings['closing'] ?? 0;
 
         _roundsFeedbackController.text = comments['roundsFeedback'] ?? '';
         _improvementController.text = comments['areasForImprovement'] ?? '';
@@ -120,11 +130,16 @@ class _FeedbackFormState extends State<FeedbackForm> {
         await _database.child(uid).child('feedback').set({
           'timestamp': ServerValue.timestamp,
           'ratings': {
-            'overall': _overallRating,
-            'mentors': _mentorsRating,
-            'jury': _juryRating,
+            'accomodation': _accomodationRating,
+            'swags': _swagsRating,
+            'commEmail': _commEmailRating,
+            'venue': _venueRating,
             'food': _foodRating,
-            'rounds': _roundsRating,
+            'activities': _activitiesRating,
+            'mentor': _mentorRating,
+            'team': _teamRating,
+            'speakers': _speakersRating,
+            'closing': _closingRating,
           },
           'comments': {
             'roundsFeedback': _roundsFeedbackController.text,
@@ -170,20 +185,31 @@ class _FeedbackFormState extends State<FeedbackForm> {
   }
 
   bool _validateRatings() {
-    return _overallRating > 0 &&
-        _mentorsRating > 0 &&
-        _juryRating > 0 &&
+    return _accomodationRating > 0 &&
+        _swagsRating > 0 &&
+        _commEmailRating > 0 &&
+        _venueRating > 0 &&
         _foodRating > 0 &&
-        _roundsRating > 0;
+        _activitiesRating > 0 &&
+        _mentorRating > 0 &&
+        _teamRating > 0 &&
+        _speakersRating > 0 &&
+        _closingRating > 0;
+
   }
 
   void _resetForm() {
     setState(() {
-      _overallRating = 0;
-      _mentorsRating = 0;
-      _juryRating = 0;
+      _accomodationRating = 0;
+      _swagsRating = 0;
+      _commEmailRating = 0;
+      _venueRating = 0;
       _foodRating = 0;
-      _roundsRating = 0;
+      _activitiesRating = 0;
+      _mentorRating = 0;
+      _teamRating = 0;
+      _speakersRating = 0;
+      _closingRating = 0;
       _roundsFeedbackController.clear();
       _improvementController.clear();
       _enjoyedController.clear();
@@ -389,7 +415,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Ratings',
+              'How Satisfied were you with the following?',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -398,29 +424,54 @@ class _FeedbackFormState extends State<FeedbackForm> {
             ),
             const SizedBox(height: 16),
             _buildRatingSection(
-              'Overall Experience',
-              _overallRating,
-                  (rating) => setState(() => _overallRating = rating),
+              'Accomodation',
+              _accomodationRating,
+                  (rating) => setState(() => _accomodationRating = rating),
             ),
             _buildRatingSection(
-              'Mentors',
-              _mentorsRating,
-                  (rating) => setState(() => _mentorsRating = rating),
+              'Swags',
+              _swagsRating,
+                  (rating) => setState(() => _swagsRating = rating),
             ),
             _buildRatingSection(
-              'Jury',
-              _juryRating,
-                  (rating) => setState(() => _juryRating = rating),
+              'Communication Emails',
+              _commEmailRating,
+                  (rating) => setState(() => _commEmailRating = rating),
             ),
             _buildRatingSection(
-              'Food & Refreshments',
+              'Venue',
+              _venueRating,
+                  (rating) => setState(() => _venueRating = rating),
+            ),
+            _buildRatingSection(
+              'Food',
               _foodRating,
                   (rating) => setState(() => _foodRating = rating),
             ),
             _buildRatingSection(
-              'Event Rounds',
-              _roundsRating,
-                  (rating) => setState(() => _roundsRating = rating),
+              'Activities',
+              _activitiesRating,
+                  (rating) => setState(() => _activitiesRating = rating),
+            ),
+            _buildRatingSection(
+              'Mentor Support',
+              _mentorRating,
+                  (rating) => setState(() => _mentorRating = rating),
+            ),
+            _buildRatingSection(
+              'Team Intellia',
+              _teamRating,
+                  (rating) => setState(() => _teamRating = rating),
+            ),
+            _buildRatingSection(
+              'Speakers',
+              _speakersRating,
+                  (rating) => setState(() => _speakersRating = rating),
+            ),
+            _buildRatingSection(
+              'Closing Ceremony',
+              _closingRating,
+                  (rating) => setState(() => _closingRating = rating),
             ),
           ],
         ),

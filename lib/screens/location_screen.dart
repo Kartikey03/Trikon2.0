@@ -39,7 +39,7 @@ class LocationScreen extends StatelessWidget {
                   height: 250,
                   width: double.infinity,
                   child: Image.asset(
-                    'assets/images/map.png',
+                    'assets/images/map.webp',
                     fit: BoxFit.cover,
                   ),
                 ),

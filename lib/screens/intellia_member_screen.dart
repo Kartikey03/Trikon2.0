@@ -112,30 +112,33 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
         onRefresh: _loadData,
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * 0.04,
+            vertical: MediaQuery.of(context).size.height * 0.025,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Leadership Section
               _buildSectionTitle(context, "President & Vice-President"),
               _buildLeadershipRow(context),
-              SizedBox(height: 30),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
 
               // Coordinators Section
               _buildSectionTitle(context, "Student Coordinators"),
               _buildCoordinatorsRow(context),
-              SizedBox(height: 30),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
 
               // Core Team Section
               _buildSectionTitle(context, "Core Team"),
               _buildCoreTeamGrid(context),
-              SizedBox(height: 30),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.03),
 
               // Junior Team Section
               if (_juniorTeam.isNotEmpty) ...[
                 _buildSectionTitle(context, "Junior Team"),
                 _buildJuniorTeamGrid(context),
-                SizedBox(height: 40),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.04),
               ],
             ],
           ),
@@ -145,15 +148,17 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
+    final double titleSize = _getResponsiveFontSize(context, 22);
+
     return Container(
-      margin: EdgeInsets.only(bottom: 20),
+      margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.02),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
             style: TextStyle(
-              fontSize: 22,
+              fontSize: titleSize,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).primaryColor,
               letterSpacing: 0.5,
@@ -162,7 +167,7 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
           SizedBox(height: 8),
           Container(
             height: 3,
-            width: 100,
+            width: MediaQuery.of(context).size.width * 0.25,
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
               borderRadius: BorderRadius.circular(10),
@@ -178,19 +183,46 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
       return Center(child: Text('No leadership data available'));
     }
 
-    return Row(
-      children: _leadership.map((leader) {
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: _buildMemberCard(
-              context,
-              member: leader,
-              isCompact: false,
-            ),
-          ),
-        );
-      }).toList(),
+    // Use LayoutBuilder to create responsive layouts
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // For small screens, stack leaders vertically
+        if (constraints.maxWidth < 600) {
+          return Column(
+            children: _leadership.map((leader) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.02),
+                child: SizedBox(
+                  width: constraints.maxWidth,
+                  child: _buildMemberCard(
+                    context,
+                    member: leader,
+                    isCompact: false,
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        } else {
+          // For larger screens, use row layout
+          return Row(
+            children: _leadership.map((leader) {
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.02,
+                  ),
+                  child: _buildMemberCard(
+                    context,
+                    member: leader,
+                    isCompact: false,
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        }
+      },
     );
   }
 
@@ -199,19 +231,45 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
       return Center(child: Text('No coordinator data available'));
     }
 
-    return Row(
-      children: _coordinators.map((coordinator) {
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: _buildMemberCard(
-              context,
-              member: coordinator,
-              isCompact: false,
-            ),
-          ),
-        );
-      }).toList(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // For small screens, stack coordinators vertically
+        if (constraints.maxWidth < 600) {
+          return Column(
+            children: _coordinators.map((coordinator) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.02),
+                child: SizedBox(
+                  width: constraints.maxWidth,
+                  child: _buildMemberCard(
+                    context,
+                    member: coordinator,
+                    isCompact: false,
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        } else {
+          // For larger screens, use row layout
+          return Row(
+            children: _coordinators.map((coordinator) {
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.02,
+                  ),
+                  child: _buildMemberCard(
+                    context,
+                    member: coordinator,
+                    isCompact: false,
+                  ),
+                ),
+              );
+            }).toList(),
+          );
+        }
+      },
     );
   }
 
@@ -220,42 +278,56 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
       return Center(child: Text('No core team data available'));
     }
 
-    return GridView.builder(
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.8,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 20,
-      ),
-      itemCount: _coreTeam.length,
-      itemBuilder: (context, index) {
-        return _buildMemberCard(
-          context,
-          member: _coreTeam[index],
-          isCompact: true,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Determine column count based on screen width
+        int crossAxisCount = _getResponsiveColumnCount(constraints.maxWidth);
+
+        return GridView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: _getResponsiveAspectRatio(context, crossAxisCount),
+            crossAxisSpacing: MediaQuery.of(context).size.width * 0.04,
+            mainAxisSpacing: MediaQuery.of(context).size.height * 0.02,
+          ),
+          itemCount: _coreTeam.length,
+          itemBuilder: (context, index) {
+            return _buildMemberCard(
+              context,
+              member: _coreTeam[index],
+              isCompact: crossAxisCount > 2,
+            );
+          },
         );
       },
     );
   }
 
   Widget _buildJuniorTeamGrid(BuildContext context) {
-    return GridView.builder(
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.8,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 20,
-      ),
-      itemCount: _juniorTeam.length,
-      itemBuilder: (context, index) {
-        return _buildMemberCard(
-          context,
-          member: _juniorTeam[index],
-          isCompact: true,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Determine column count based on screen width
+        int crossAxisCount = _getResponsiveColumnCount(constraints.maxWidth);
+
+        return GridView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: _getResponsiveAspectRatio(context, crossAxisCount),
+            crossAxisSpacing: MediaQuery.of(context).size.width * 0.04,
+            mainAxisSpacing: MediaQuery.of(context).size.height * 0.02,
+          ),
+          itemCount: _juniorTeam.length,
+          itemBuilder: (context, index) {
+            return _buildMemberCard(
+              context,
+              member: _juniorTeam[index],
+              isCompact: crossAxisCount > 2,
+            );
+          },
         );
       },
     );
@@ -266,12 +338,26 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
         required MemberModel member,
         bool isCompact = false,
       }) {
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double nameSize = _getResponsiveFontSize(context, isCompact ? 16 : 18);
+    final double roleSize = _getResponsiveFontSize(context, isCompact ? 13 : 14);
+    final double branchSize = _getResponsiveFontSize(context, 13);
+    final double quoteSize = _getResponsiveFontSize(context, 12);
+
+    // Calculate profile image size based on screen width
+    final double imageSize = screenWidth < 600
+        ? screenWidth * (isCompact ? 0.15 : 0.2)
+        : (isCompact ? 80 : 100);
+
+    final double padding = screenWidth * (isCompact ? 0.02 : 0.03);
+
     return Card(
       elevation: 5,
       shadowColor: Theme.of(context).primaryColor.withOpacity(0.3),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Container(
-        padding: EdgeInsets.all(isCompact ? 12 : 16),
+        padding: EdgeInsets.all(padding),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           gradient: LinearGradient(
@@ -288,8 +374,8 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
           children: [
             // Profile image with shadow
             Container(
-              width: isCompact ? 80 : 100,
-              height: isCompact ? 80 : 100,
+              width: imageSize,
+              height: imageSize,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: [
@@ -309,7 +395,7 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
                       color: Theme.of(context).primaryColor.withOpacity(0.2),
                       child: Icon(
                         Icons.person,
-                        size: isCompact ? 40 : 50,
+                        size: imageSize * 0.5,
                         color: Theme.of(context).primaryColor,
                       ),
                     );
@@ -317,14 +403,14 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
                 ),
               ),
             ),
-            SizedBox(height: isCompact ? 12 : 16),
+            SizedBox(height: MediaQuery.of(context).size.height * (isCompact ? 0.01 : 0.015)),
 
             // Name
             Text(
               member.name,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: isCompact ? 16 : 18,
+                fontSize: nameSize,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).primaryColor,
               ),
@@ -336,7 +422,7 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
               member.role,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: isCompact ? 13 : 14,
+                fontSize: roleSize,
                 fontWeight: FontWeight.w500,
                 color: Colors.black87,
               ),
@@ -349,7 +435,7 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
                 member.branch!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: branchSize,
                   fontStyle: FontStyle.italic,
                   color: Colors.black54,
                 ),
@@ -365,14 +451,14 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: quoteSize,
                   fontStyle: FontStyle.italic,
                   color: Colors.black38,
                 ),
               ),
             ],
 
-            SizedBox(height: isCompact ? 10 : 16),
+            SizedBox(height: MediaQuery.of(context).size.height * (isCompact ? 0.01 : 0.015)),
 
             // Social media icons
             Row(
@@ -383,23 +469,26 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
                   icon: Icons.email,
                   color: Colors.red,
                   url: "mailto:${member.gmail}",
+                  isCompact: isCompact,
                 ),
-                SizedBox(width: isCompact ? 8 : 12),
+                SizedBox(width: MediaQuery.of(context).size.width * (isCompact ? 0.02 : 0.03)),
 
                 _buildSocialIcon(
                   context,
                   icon: Icons.photo_camera,
                   color: Colors.purple,
                   url: member.instagram,
+                  isCompact: isCompact,
                 ),
 
-                SizedBox(width: isCompact ? 8 : 12),
+                SizedBox(width: MediaQuery.of(context).size.width * (isCompact ? 0.02 : 0.03)),
 
                 _buildSocialIcon(
                   context,
                   icon: Icons.work,
                   color: Colors.blue,
                   url: member.linkedin,
+                  isCompact: isCompact,
                 ),
               ],
             ),
@@ -414,7 +503,13 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
         required IconData icon,
         required Color color,
         required String url,
+        bool isCompact = false,
       }) {
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double iconSize = screenWidth < 600 ? screenWidth * 0.04 : 20;
+    final double padding = screenWidth * 0.018;
+
     return InkWell(
       onTap: () async {
         try {
@@ -434,17 +529,62 @@ class _SocietyMembersScreenState extends State<SocietyMembersScreen> {
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: EdgeInsets.all(8),
+        padding: EdgeInsets.all(padding),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
           icon,
-          size: 20,
+          size: iconSize,
           color: color,
         ),
       ),
     );
+  }
+
+  // Helper methods for responsive design
+
+  // Get responsive font size based on screen width
+  double _getResponsiveFontSize(BuildContext context, double baseSize) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth < 360) {
+      return baseSize * 0.8;
+    } else if (screenWidth < 600) {
+      return baseSize * 0.9;
+    } else if (screenWidth < 900) {
+      return baseSize;
+    } else {
+      return baseSize * 1.1;
+    }
+  }
+
+  // Get responsive column count based on screen width
+  int _getResponsiveColumnCount(double width) {
+    if (width < 360) {
+      return 1;  // Extra small screens
+    } else if (width < 600) {
+      return 2;  // Small screens
+    } else if (width < 900) {
+      return 3;  // Medium screens
+    } else {
+      return 4;  // Large screens
+    }
+  }
+
+  // Get responsive aspect ratio for grid items
+  double _getResponsiveAspectRatio(BuildContext context, int columnCount) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth < 360) {
+      return 0.75;  // Taller cards on very small screens
+    } else if (screenWidth < 600) {
+      return 0.8;   // Taller cards on small screens
+    } else if (columnCount == 3) {
+      return 0.85;  // Medium screens
+    } else {
+      return 0.9;   // Wider cards on large screens
+    }
   }
 }

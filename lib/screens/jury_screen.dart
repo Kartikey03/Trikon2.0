@@ -21,6 +21,10 @@ class _JuryScreenState extends State<JuryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen size
+    final Size screenSize = MediaQuery.of(context).size;
+    final bool isSmallScreen = screenSize.width < 600;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Jury'),
@@ -54,22 +58,35 @@ class _JuryScreenState extends State<JuryScreen> {
             }
 
             final juryMembers = snapshot.data!;
-            return _buildGridView(juryMembers);
+            return _buildGridView(juryMembers, screenSize, isSmallScreen);
           },
         ),
       ),
     );
   }
 
-  Widget _buildGridView(List<JuryModel> juryMembers) {
+  Widget _buildGridView(List<JuryModel> juryMembers, Size screenSize, bool isSmallScreen) {
+    // Determine grid columns based on screen width
+    int crossAxisCount = 2;
+    if (screenSize.width > 900) {
+      crossAxisCount = 4;
+    } else if (screenSize.width > 600) {
+      crossAxisCount = 3;
+    } else if (screenSize.width < 400) {
+      crossAxisCount = 1;
+    }
+
+    double padding = screenSize.width * 0.04; // 4% of screen width for padding
+    padding = padding.clamp(8.0, 24.0); // Limit padding between 8 and 24
+
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(padding),
       child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.68,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          childAspectRatio: 0.7, // Adjusted for better proportions
+          crossAxisSpacing: padding,
+          mainAxisSpacing: padding,
         ),
         itemCount: juryMembers.length,
         itemBuilder: (context, index) {
@@ -88,12 +105,12 @@ class _JuryScreenState extends State<JuryScreen> {
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                     child: Image.asset(
                       "assets/images/${jury.image}",
-                      height: 140,
+                      height: screenSize.height * 0.15, // Responsive height
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
-                        height: 140,
+                        height: screenSize.height * 0.15,
                         color: Colors.grey[300],
-                        child: const Icon(Icons.person, size: 60),
+                        child: Icon(Icons.person, size: screenSize.width * 0.08),
                       ),
                     ),
                   ),
@@ -105,9 +122,9 @@ class _JuryScreenState extends State<JuryScreen> {
                         children: [
                           Text(
                             jury.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: isSmallScreen ? 14 : 16,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -117,7 +134,7 @@ class _JuryScreenState extends State<JuryScreen> {
                             child: Text(
                               jury.role,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: isSmallScreen ? 10 : 12,
                                 color: Colors.grey[700],
                               ),
                               maxLines: 2,
@@ -128,7 +145,10 @@ class _JuryScreenState extends State<JuryScreen> {
                           InkWell(
                             onTap: () => _launchUrl(jury.linkedin),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenSize.width * 0.02,
+                                vertical: screenSize.height * 0.005,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF0077B5).withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(12),
@@ -141,14 +161,14 @@ class _JuryScreenState extends State<JuryScreen> {
                                 children: [
                                   Icon(
                                     Icons.shopping_bag,
-                                    size: 14,
+                                    size: isSmallScreen ? 12 : 14,
                                     color: const Color(0xFF0077B5),
                                   ),
                                   SizedBox(width: 4),
                                   Text(
                                     'LinkedIn',
                                     style: TextStyle(
-                                      fontSize: 10,
+                                      fontSize: isSmallScreen ? 9 : 10,
                                       color: const Color(0xFF0077B5),
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -171,6 +191,9 @@ class _JuryScreenState extends State<JuryScreen> {
   }
 
   void _showJuryDetails(JuryModel jury) {
+    final Size screenSize = MediaQuery.of(context).size;
+    final bool isSmallScreen = screenSize.width < 600;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -178,16 +201,21 @@ class _JuryScreenState extends State<JuryScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
+        // Get screen size again in case of orientation change
+        final Size currentSize = MediaQuery.of(context).size;
+        final double maxHeight = currentSize.height * 0.85;
+        final double horizontalPadding = currentSize.width * 0.05;
+
         return Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.85,
+            maxHeight: maxHeight,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Handle for dragging
               Container(
-                width: 40,
+                width: currentSize.width * 0.1,
                 height: 5,
                 margin: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
@@ -208,62 +236,68 @@ class _JuryScreenState extends State<JuryScreen> {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) => Container(
                             color: Colors.grey[300],
-                            child: const Icon(Icons.person, size: 80),
+                            child: Icon(
+                              Icons.person,
+                              size: currentSize.width * 0.15,
+                            ),
                           ),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(24),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: currentSize.height * 0.03,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               jury.name,
-                              style: const TextStyle(
-                                fontSize: 24,
+                              style: TextStyle(
+                                fontSize: isSmallScreen ? 20 : 24,
                                 fontWeight: FontWeight.bold,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: currentSize.height * 0.005),
                             Text(
                               jury.role,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: isSmallScreen ? 14 : 16,
                                 color: Colors.grey[700],
                               ),
                               maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 24),
+                            SizedBox(height: currentSize.height * 0.03),
                             if (jury.bio != null && jury.bio!.isNotEmpty) ...[
-                              const Text(
+                              Text(
                                 'About',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: isSmallScreen ? 16 : 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: currentSize.height * 0.01),
                               Text(
                                 jury.bio!,
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: isSmallScreen ? 14 : 16,
                                   color: Colors.grey[800],
                                   height: 1.5,
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              SizedBox(height: currentSize.height * 0.03),
                             ],
-                            const Text(
+                            Text(
                               'Connect',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: isSmallScreen ? 16 : 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: currentSize.height * 0.02),
                             SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
@@ -273,15 +307,16 @@ class _JuryScreenState extends State<JuryScreen> {
                                     color: const Color(0xFF0077B5),
                                     label: 'LinkedIn',
                                     onTap: () => _launchUrl(jury.linkedin),
+                                    screenSize: currentSize,
                                   ),
-                                  const SizedBox(width: 16),
+                                  SizedBox(width: currentSize.width * 0.04),
                                   if (jury.email != null) ...[
-                                    const SizedBox(width: 16),
                                     _buildConnectButton(
                                       icon: Icons.mail,
                                       color: const Color(0xFFE1306C),
                                       label: 'Email',
                                       onTap: () => _launchUrl('mailto:${jury.email}'),
+                                      screenSize: currentSize,
                                     ),
                                   ],
                                 ],
@@ -306,13 +341,17 @@ class _JuryScreenState extends State<JuryScreen> {
     required Color color,
     required String label,
     required VoidCallback onTap,
+    required Size screenSize,
   }) {
+    final bool isSmallScreen = screenSize.width < 600;
+    final double buttonWidth = isSmallScreen ? screenSize.width * 0.25 : 120.0;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        width: 120,
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        width: buttonWidth,
+        padding: EdgeInsets.symmetric(vertical: screenSize.height * 0.015),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
@@ -320,13 +359,14 @@ class _JuryScreenState extends State<JuryScreen> {
         ),
         child: Column(
           children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 8),
+            Icon(icon, color: color, size: isSmallScreen ? 20 : 24),
+            SizedBox(height: screenSize.height * 0.01),
             Text(
               label,
               style: TextStyle(
                 color: color,
                 fontWeight: FontWeight.w500,
+                fontSize: isSmallScreen ? 12 : 14,
               ),
             ),
           ],
