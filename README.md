@@ -28,10 +28,10 @@ Trikon 2.0 is a cross-platform event management application developed using Flut
 
 ## 📸 Screenshots
 
-![Screenshot_20250513_131112](https://github.com/user-attachments/assets/98179977-fa57-454e-a90b-bda8b6a41cc3)
-![Screenshot_20250513_131233](https://github.com/user-attachments/assets/92e61da7-00ee-48c3-a435-4a24c18dc039)
-![Screenshot_20250513_131238](https://github.com/user-attachments/assets/93f09390-0b17-4789-a038-290f3428b5eb)
-![Screenshot_20250513_131249](https://github.com/user-attachments/assets/e641b074-4643-45ff-a34b-5e14027095d3)
+<img src="https://github.com/user-attachments/assets/98179977-fa57-454e-a90b-bda8b6a41cc3" alt="Home Screen" width="200">
+<img src="https://github.com/user-attachments/assets/92e61da7-00ee-48c3-a435-4a24c18dc039" alt="Trix - AI Chatbot" width="200">
+<img src="https://github.com/user-attachments/assets/93f09390-0b17-4789-a038-290f3428b5eb" alt="Location Screen" width="200">
+<img src="https://github.com/user-attachments/assets/e641b074-4643-45ff-a34b-5e14027095d3" alt="Schedule Screen" width="200">
 
 ---
 
